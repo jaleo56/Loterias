@@ -1,0 +1,9 @@
+{
+    "python.pythonPath": "/Users/jaleo/.pyenv/shims/python",
+    "files.exclude": {
+        "**/*.pdf": true,
+        "**/*.xlsm": true,
+        "**/*.xlsx": true,
+        "z_obsoleto/": true
+    }
+}
