@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/Users/jaleo/.pyenv/shims/python",
+    "python.pythonPath": "/Volumes/Harddrive_HHD/apps/python/.virtualenvs/loterias/bin/python",
     "files.exclude": {
         "**/*.pdf": true,
         "**/*.xlsm": true,

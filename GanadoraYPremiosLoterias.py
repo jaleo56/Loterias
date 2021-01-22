@@ -36,5 +36,5 @@ def GanadoraYPremiosLoterias(juego):
     setPremiosToExcel(premios)
 
 if __name__ == "__main__":
-    GanadoraYPremiosLoterias("EUROMILLONES")
+    GanadoraYPremiosLoterias("PRIMITIVA")
     

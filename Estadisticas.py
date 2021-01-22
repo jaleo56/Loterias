@@ -13,12 +13,21 @@ class Estadisticas:
     ########################################################################################
     # API
     #---------------------------------------------------------------------------------------
-    def checkAciertos(self, updXLS=None):
+    def checkAciertos(self, updXLS=False):
         xls = self._getInfoFromExcel()      # Obtiene, apuestas, eApuestas, ganadoras,
         snApuestas = self._getNumsApuestas(self.apuestas)
         self.lAciertos = self._checkAciertos(self.ganadoras, snApuestas)
+        if updXLS:
+            xls.publicarRango(self.s.CEL_ACIERTOS, self.lAciertos)
+        else:
+            print (f"{self.lAciertos=}")
+
+
+    def checkNAnteriores(self, updXLS=None, nAnteriores=10):
+        xls = self._getGanadorasFromExcel()     
+        self.lAciertos = self._checkNAnteriores(nAnteriores)
         if updXLS != None:
-           xls.publicarColumna(self.s.CEL_ACIERTOS, self.lAciertos)
+           xls.publicarRango(self.s.CEL_ACIERTOS, self.lAciertos)
 
 
     def checkAllGanadoras(self, updXLS=None, resumir=None):
@@ -47,16 +56,28 @@ class Estadisticas:
         if updXLS != None:
             xls.publicarRango(self.s.COL_DISTRIBUCION, self.lDistribucion)        
  
+
+    def checkSeguidos(self, updXLS=None):
+        xls = self._getGanadorasFromExcel()
+        self.lSeguidos = self._checkSeguidos()
+        if updXLS != None:
+            xls.publicarRango(self.s.COL_SEGUIDOS, self.lSeguidos)   
+        else:
+            print(self.lSeguidos)
+            
+  
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 1
     #---------------------------------------------------------------------------------------
     def _checkAciertos(self, ganadoras, nssApuestas):
         lAciertos =[]
+        nNumeros = len(nssApuestas)
         for x, ganadora in ganadoras.iterrows():
             if x == 0: continue
             sGanadora = set(ganadora)
             naciertos = len(sGanadora.intersection(nssApuestas))
-            lAciertos.append(naciertos)
+            lFila = [naciertos, nNumeros]
+            lAciertos.append(lFila)
         return lAciertos
 
 
@@ -95,44 +116,51 @@ class Estadisticas:
     def _checkFiguras(self):
         lFiguras = []
         self._inicioArraysNumeros()
-        for ganadora in range(len(self.ganadorasRange)):
-            sGanadora = set(ganadora)
-            pares = len(sGanadora.intersection(self.numerosPares))
-            impares = self.s.NUMS_COMBINACION - pares
-            bajos = len(sGanadora.intersection(self.numerosBajos))
-            altos = self.s.NUMS_COMBINACION - bajos
-            periferia = len(sGanadora.intersection(self.numerosPeriferia))
-            centrales = self.s.NUMS_COMBINACION - periferia
+        for i, ganadora in self.ganadoras.iterrows():
+            sGanadora   = set(ganadora)
+            pares       = len(sGanadora.intersection(self.numerosPares))
+            impares     = self.s.NUMS_COMBINACION - pares
+            bajos       = len(sGanadora.intersection(self.numerosBajos))
+            altos       = self.s.NUMS_COMBINACION - bajos
+            periferia   = len(sGanadora.intersection(self.numerosPeriferia))
+            centrales   = self.s.NUMS_COMBINACION - periferia
 
-            lTerminaciones = [0] * 10
+            lTerminaciones  = [0] * 11
+            lDecenas        = [0] * 7
+            lIntervalos     = [0] * 11
             for n in ganadora:
-                lTerminaciones[n%10] += 1
+                t = int(n%10)
+                d = int(n/10)
+                v = int(n/5) if n%5 != 0 else int(n/5)-1
+                lTerminaciones[t] += 1
+                lDecenas[d]       += 1
+                lIntervalos[v]    += 1 
 
-            nTerminaciones = 0
             for n in range(10):
-                if lTerminaciones[n] > 0: nTerminaciones += 1
-            
-            lFiguras.append([altos, bajos, pares, impares, periferia, centrales, lTerminaciones, nTerminaciones])    
+                if lTerminaciones[n] > 0: lTerminaciones[10] += 1
+
+            for n in range(6):
+                if lDecenas[n] > 0: lDecenas[6] += 1
+
+            for n in range(10):
+                if lIntervalos[n] > 0: lIntervalos[10] += 1
+
+            l = [altos, bajos, pares, impares, periferia, centrales]
+            l.extend(lTerminaciones)
+            l.extend(lIntervalos)
+            # l.extend(lDecenas)
+
+            lFiguras.append(l)    
         return lFiguras
 
 
     def _checkDistribucion(self):
-        grupos = [ 
-            {1, 3, 5, 7, 9, 11, 21}, 
-            {13, 15, 17, 19, 23, 25},
-            {2, 4, 6, 8, 10, 20}, 
-            {12, 14, 16, 18, 22, 24}, 
-            {41, 43, 45, 47, 49, 31}, 
-            {33, 35, 37, 39, 27, 29},
-            {40, 42, 44, 46, 48, 50, 30}, 
-            {32, 34, 36, 38, 26, 28}] 
-           
         lDistribucion = []
         for i in range(len(self.ganadoras)):
             sGanadora = set(self.ganadoras.iloc[i])
             ac = [0] * 9
-            for x in range(len(grupos)):     
-                numeros = set(grupos[x])
+            for x in range(len(self.s.GRUPOS_NUMS)):
+                numeros = set(self.s.GRUPOS_NUMS[x])
                 ac[x] = len(sGanadora.intersection(numeros))  
             nGrupos = 0
             for na in ac:
@@ -140,7 +168,45 @@ class Estadisticas:
             ac[8] = nGrupos      
             lDistribucion.append(ac)    
         return lDistribucion
-    
+
+
+    def _checkNAnteriores(self, nAnteriores=7):
+        nApuestas = []
+        lAciertos = []
+        for i in range(len(self.ganadoras)-nAnteriores):
+            sGanadora = set(self.ganadoras.iloc[i])
+            nApuestas.clear()    
+            for j in range(1,nAnteriores+1):
+                l = self.ganadoras.iloc[i+j].tolist()
+                nApuestas += l
+            cApuestas = [x for x in self.s.NUMEROS_LOTO if x not in nApuestas]
+            sApuestas = set(cApuestas)
+            nAciertos = len(sGanadora.intersection(sApuestas))
+            l2 = [nAciertos, len(sApuestas)]
+            lAciertos.append(l2)
+        return lAciertos
+
+
+    def _checkSeguidos(self):
+        lSeguidos = []
+        for x, ganadora in self.ganadoras.iterrows():
+            if x == 0: continue
+            lGanadora = list(ganadora)
+            seguidos = [0] * 7
+            seg = 0
+            for i in range(1, 6):
+                if lGanadora[i] - lGanadora[i-1] == 1:
+                    seg += 1
+                else:
+                    if seg > 0: seguidos[seg] += 1
+                    seg = 0
+            else:
+                if seg > 0: seguidos[seg] += 1 
+            for i in range(6): 
+                if seguidos[i] > 0: seguidos[6] += 1  
+            lSeguidos.append(seguidos)    
+        return lSeguidos
+
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 2
     #---------------------------------------------------------------------------------------
@@ -163,6 +229,7 @@ class Estadisticas:
         self.resultadosRange = xls.getRange(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_RESUMENES)
         return xls
 
+    
     def _getGanadorasFromExcel(self):
         xls = HojaExcel()
         ganadorasRange = xls.getDataFrame(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_GANADORAS) 
@@ -196,7 +263,7 @@ class Estadisticas:
     def _listaAciertos(self, cntRow):
         if self.s.LOTO == "PRIMITIVA":
             return ([
-                cntRow[30], cntRow[40], cntRow[41],
+                cntRow[30] + cntRow[31], cntRow[40], cntRow[41],
                 cntRow[50], cntRow[51], cntRow[60]
             ])
         else:
@@ -214,24 +281,36 @@ class Estadisticas:
 # MACROS EXCEL
 #---------------------------------------------------------------------------------------
 def AciertosMacroExcel(file, sheet):
-    std = Estadisticas()
-    std.checkAciertos(updXLS="yes")
+    std = Estadisticas(file, sheet)
+    std.checkAciertos(updXLS=True)
 
 def CheckGanadorasMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
-    std.checkAllGanadoras(updXLS="yes", resumir="yes")
+    std.checkAllGanadoras(updXLS="yes", resumir=None)
 
 def CheckFigurasMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
     std.checkFiguras(updXLS="yes")
 
+def CheckDistribucionMacroExcel(file, sheet):
+    std = Estadisticas(file, sheet)
+    std.checkDistribucion(updXLS="yes")
+
+def CheckNAnterioresMacroExcel(file, sheet):
+    std = Estadisticas(file, sheet)
+    std.checkNAnteriores(updXLS="yes", nAnteriores=7)
+
+def CheckSeguidosMacroExcel(file, sheet):
+    std = Estadisticas(file, sheet)
+    std.checkSeguidos(updXLS="yes")
+
 ########################################################################################
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    std = Estadisticas("Loterias2.xlsm", "PRIMITIVA")
-    std.checkDistribucion("UPTXLS")
-
-    # CheckGanadorasMacroExcel("Loterias2.xlsm", "PRIMITIVA")
-    # CheckGanadorasMacroExcel("Loterias2.xlsm", "EUROMILLONES")
-    # CheckFigurasMacroExcel("Loterias2.xlsm", "EUROMILLONES")
+    # CheckNAnterioresMacroExcel ("Loterias3.xlsm", "PRIMITIVA")
+    # CheckDistribucionMacroExcel("Loterias3.xlsm", "PRIMITIVA")
+    # CheckGanadorasMacroExcel   ("Loterias3.xlsm", "PRIMITIVA")
+    # CheckFigurasMacroExcel   ("Loterias3.xlsm", "PRIMITIVA")
+    # CheckSeguidosMacroExcel("Loterias3.xlsm", "PRIMITIVA")
+    AciertosMacroExcel("Test.xlsx", "PRIMITIVA")

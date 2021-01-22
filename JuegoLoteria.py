@@ -1,6 +1,8 @@
 from random import randrange
 from HojaExcel import HojaExcel
 from settings import Settings
+from Figuras import Figuras
+import copy
 
 ###################################################################################
 #  Clase BomboNumeros     
@@ -12,40 +14,50 @@ from settings import Settings
 class BomboNumeros:
 
     def __init__(self, s):
-        self.numerosAleatorios = []
-        self.numerosPares = []
-        self.numerosImpares = []
+        self.numerosAleatorios      = []
+        self.numerosPares           = []
+        self.numerosImpares         = []
 
-        self.numerosInitPeriferia = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 21, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
-        self.numerosInitCentrales = [12, 13, 14, 15, 16, 17, 18, 19, 22, 23, 24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 37, 38, 39]
-        self.numerosPeriferia = []
-        self.numerosCentrales = []
+        self.numerosInitPeriferia   = s.NUMS_PERIFERIA
+        self.numerosInitCentrales   = s.NUMS_CENTRALES 
+        self.numerosPeriferia       = []
+        self.numerosCentrales       = []
 
-        self.numerosBajos = []
-        self.numerosAltos = []
-        self.numerosIntervalos = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
-        self.numerosEstrellas = []
+        self.numerosBajos           = []
+        self.numerosAltos           = []
+        self.numerosIntervalos      = s.NUMS_INTERVALOS 
+        self.numerosEstrellas       = []
+
+        self.gruposAJugar           = []
+        self.idxg                   = []
+        self.nFiguras               = [0] * 8 * 8
+        self.numsFiguras            = []
 
         # self._inicioArraysNumeros(s)
 
-    def _inicioArraysNumeros(self, s):
-        self.numerosAleatorios = [x for x in range(1, s.NUM_MAYOR  + 1)]
-        self.numerosPares = [x for x in range(1, s.NUM_MAYOR  + 1) if x % 2 == 0]
-        self.numerosImpares = [x for x in range(1, s.NUM_MAYOR  + 1) if x % 2 != 0]
-        self.numerosBajos = [x for x in range(1, 26)]
-        self.numerosAltos = [x for x in range(26, s.NUM_MAYOR  + 1)]
-        self.numerosPeriferia = self.numerosInitPeriferia.copy()
-        self.numerosCentrales = self.numerosInitCentrales.copy()
 
-    def getNumeroAlAzar(self, s, idx=0, terminacion=None):
+    def _inicioArraysNumeros(self, s):
+        self.numerosAleatorios  = [x for x in range(1, s.NUM_MAYOR  + 1)]
+        self.numerosPares       = [x for x in range(1, s.NUM_MAYOR  + 1) if x % 2 == 0]
+        self.numerosImpares     = [x for x in range(1, s.NUM_MAYOR  + 1) if x % 2 != 0]
+        self.numerosBajos       = [x for x in range(1, 26)]
+        self.numerosAltos       = [x for x in range(26, s.NUM_MAYOR  + 1)]
+        self.numerosPeriferia   = self.numerosInitPeriferia.copy()
+        self.numerosCentrales   = self.numerosInitCentrales.copy()
+
+
+    def getNumeroAlAzar(self, s):
+        if len(self.numerosAleatorios) == 0:
+            self.numerosAleatorios = [x for x in range(1, s.NUM_MAYOR  + 1)]
+        return self.numerosAleatorios.pop(randrange(len(self.numerosAleatorios)))
+
+    def getNumeroTerminacion(self, s, idx=0, terminacion=None):
         if terminacion != None:
             if idx == 0:
                 self.numerosAleatorios.clear()
             else:
                 self.numerosAleatorios = [x for x in self.numerosAleatorios if x % 10 != terminacion]
-        if len(self.numerosAleatorios) == 0:
-            self.numerosAleatorios = [x for x in range(1, s.NUM_MAYOR  + 1)]
-        return self.numerosAleatorios.pop(randrange(len(self.numerosAleatorios)))
+        return(self.getNumeroAlAzar(s))
 
     def getEstrellaAlAzar(self, s):
         if len(self.numerosEstrellas) == 0:
@@ -86,6 +98,53 @@ class BomboNumeros:
         intervalo = (i for i, e in enumerate(self.numerosIntervalos) if e >= numero)
         return next(intervalo)
 
+
+    # ----- GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
+    def getNumeroFiguras(self, s, ndecenas=0, ngrupos=3):
+
+        # ---Seleccionar n grupos al azar (primera vez) 
+        if len(self.gruposAJugar) == 0: 
+            self.numsFiguras, self.gruposAJugar = self._createFiguras(s, ndecenas, ngrupos)     
+            self.nFiguras = copy.deepcopy(self.numsFiguras)
+            self.idxg     = copy.deepcopy(self.gruposAJugar)
+
+        # --- Seleccionar uno de los n grupos (sin repeticion) 
+        if len(self.idxg) == 0:
+            self.idxg = copy.deepcopy(self.gruposAJugar)
+        nGrupo = self.idxg.pop(randrange(len(self.idxg)))
+
+        # --- Seleccionar numero del grupo seleccionado (sin repeticion: pop)
+        if len(self.nFiguras[nGrupo]) == 0:
+            self.nFiguras[nGrupo] = copy.deepcopy(self.numsFiguras[nGrupo])
+        return self.nFiguras[nGrupo].pop(randrange(len(self.nFiguras[nGrupo])))
+        
+
+    def _createFiguras(self, s, ndecenas=0, ngrupos=0):
+        gruposAJugar    = []
+        numsFiguras = []
+
+        # --- Obtener numeros de figuras
+        f = Figuras()
+        numsFiguras = f.getFiguras(s, ndecenas=ndecenas)
+
+        # --- Seleccionar n grupos al azar
+        g = [0,1,2,3,4,5,6,7]
+        nsels = 0
+        intentos = 0
+        max_intentos = 20
+        while nsels < ngrupos:
+            intentos += 1
+            ng = g.pop(randrange(len(g)))
+            if len(numsFiguras[ng]) > 0: 
+                nsels += 1
+                gruposAJugar.append(ng)
+            elif intentos >= max_intentos: 
+                print (f"Sobrepasado el maximo de {max_intentos} intentos")
+                break
+
+        return numsFiguras, gruposAJugar 
+
+
 ###################################################################################
 #  Clase Apuesta                                                         
 #  Obtiene una apuesta del tipo de loteria jugado                            
@@ -95,52 +154,80 @@ class Apuesta:
         self.bombo = BomboNumeros(s)
 
     def obtenerApuesta(self, s):
-        apuesta = [0] * s.NUMS_COMBINACION 
+        apuesta  = [0] * s.NUMS_COMBINACION 
         estrella = [0] * 2
 
-        # Obtener numeros de 1 apuesta
+        # OBTENER NUMEROS DE UNA APUESTA
         t = None
-        for i in range(s.NUMS_COMBINACION ):
-            apuesta[i] = self.bombo.getNumeroAlAzar(s, idx=i, terminacion=t)
-            # print ("i: ", i, "numero: ", apuesta[i])
-            # t = apuesta[i] % 10
+        apuestas_erroneas = 0
+        found = False
 
-            # if i == 0:
-            #     apuesta[i] = self.bombo.getNumeroAlAzar()
-            #     # ultimo = apuesta[i]
-            # elif ultimo < 26:                            #ultimo in self.bombo.numerosInitPeriferia:
-            #     apuesta[i] = self.bombo.getNumeroAlto()
-            # else:
-            #     apuesta[i] = self.bombo.getNumeroBajo()
-            # ultimo = apuesta[i]
 
-        # Obtener estrellas, si existen en el juego
+        while not found:
+            for i in range(s.NUMS_COMBINACION ):
+                # # print(f"{i=}")    
+                # # ---- NUMEROS DE N GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
+                apuesta[i] = self.bombo.getNumeroFiguras(s, ndecenas=0, ngrupos=5)
+
+                # ---- NUMEROS AL AZAR
+                # apuesta[i] = self.bombo.getNumeroAlAzar(s)
+
+                # ---- NUMEROS TERMINACIONES DIFERENTES
+                # apuesta[i] = self.bombo.getNumeroTerminacion(s, idx=i, terminacion=t)
+                # t = apuesta[i] % 10
+
+                # ---- ALTERAR NUMEROS
+                # if i == 0:
+                #     apuesta[i] = self.bombo.getNumeroAlAzar()
+                #
+                # ---- ...(1) ALTOS Y BAJOS
+                # elif ultimo < 26:                            
+                #     apuesta[i] = self.bombo.getNumeroAlto()
+                # else:
+                #     apuesta[i] = self.bombo.getNumeroBajo()
+                #
+                # ---- ...(2) PERIFERIA Y CENTRALES
+                # elif: ultimo in self.bombo.numerosInitPeriferia:
+                #   apuesta[i] = self.bombo.getNumeroBajo()
+                #
+                # ultimo = apuesta[i]
+
+            if len(apuesta) == len(set(apuesta)): 
+                found = True
+            else:
+                apuestas_erroneas += 1
+                apuesta.clear()
+
+        print (f"{apuestas_erroneas=}")
+        apuesta.sort()
+        
+        # OBTENER ESTRELLAS, si existen en el juego
         if s.NUMS_ESTRELLAS > 0:
             for i in range(2):
                 estrella[i] = self.bombo.getEstrellaAlAzar(s)
             return apuesta + [0] + estrella
         else: 
             return apuesta + estrella 
-            
-
+                    
 ###################################################################################
 #  Clase JuegoLoteria                                                    
 #  Obtiene el conjunto de apuestas deseadas de una loteria.                  
 ###################################################################################
-class Loteria:
-    def __init__(self, file, sheet):
+class Loteria: 
+    def __init__(self, file, sheet): 
         self.s = Settings(file, sheet)
-
+   
     def jugarLoteria(self, nApuestas, updXLS=None):
         apuestas = self._getApuestas(int(nApuestas))
         if updXLS != None:
             self._publicarExcel(apuestas)
+        return apuestas
 
     def _getApuestas(self, nApuestas):
         apuestas  = [[0] * self.s.NUMS_COMBINACION ] * nApuestas
-        combi = Apuesta(self)
+        ap = Apuesta(self.s)
         for i in range(nApuestas):
-            apuestas[i] = combi.obtenerApuesta(self.s)
+            apuestas[i] = ap.obtenerApuesta(self.s)
         return apuestas
          
     def _publicarExcel(self, apuestas):
@@ -152,12 +239,13 @@ class Loteria:
 ####################################################################################
 def JugarMacroExcel(file, sheet, nApuestas):
     juego = Loteria(file, sheet)
-    juego.jugarLoteria(nApuestas, updXLS="yes")
-    
+    apuestas = juego.jugarLoteria(nApuestas, updXLS="yes")
+    print(f"{apuestas=}")
+
 ###################################################################################
 #  Test                                                                  
 ###################################################################################
 if __name__ == "__main__":
-    JugarMacroExcel("Loterias2.xlsm", "PRIMITIVA", 6)
+    JugarMacroExcel("Test.xlsx", "PRIMITIVA", 8)
     
 

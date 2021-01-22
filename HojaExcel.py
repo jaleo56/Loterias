@@ -30,7 +30,7 @@ class HojaExcel:
 
 if __name__ == "__main__":
     xls = HojaExcel()
-    s = Settings("Loterias2.xlsm", "EUROMILLONES")
+    s = Settings("Loterias3.xlsm", "EUROMILLONES")
     apuestasRange = xls.getDataFrame(s.FILE_NAME, s.SHEET, s.RNG_APUESTAS)
     apuestas  = pd.DataFrame(apuestasRange, columns=s.COLS_APUESTAS)
     estrellas = pd.DataFrame(apuestasRange, columns=s.COLS_EAPUESTAS)
