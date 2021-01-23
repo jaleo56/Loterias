@@ -50,10 +50,10 @@ class Estadisticas:
             xls.publicarRango(self.s.COL_FIGURAS, self.lFiguras)
 
 
-    def checkDistribucion(self, updXLS=None):
+    def checkDistribucion(self, updXLS=True):
         xls = self._getGanadorasFromExcel()
         self.lDistribucion = self._checkDistribucion()
-        if updXLS != None:
+        if updXLS:
             xls.publicarRango(self.s.COL_DISTRIBUCION, self.lDistribucion)        
  
 

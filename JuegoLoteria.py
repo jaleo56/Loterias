@@ -97,25 +97,30 @@ class BomboNumeros:
     def getIntervaloFromNumero(self, s, numero):
         intervalo = (i for i, e in enumerate(self.numerosIntervalos) if e >= numero)
         return next(intervalo)
-
+        
 
     # ----- GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
-    def getNumeroFiguras(self, s, idx, ndecenas=0, ngrupos=3):
+    def getNumeroFiguras(self, s, idx, numant=0, ndecenas=0, ngrupos=3):
 
         # ---Seleccionar n grupos al azar (primera vez) 
         if len(self.gruposAJugar) == 0: 
             self.numsFiguras, self.gruposAJugar = self._createFiguras(s, ndecenas, ngrupos)     
             self.nFiguras = copy.deepcopy(self.numsFiguras)
             self.idxg     = copy.deepcopy(self.gruposAJugar)
-            ng            = min(ngrupos, len(self.gruposAJugar))    
+            self.ng       = min(ngrupos, len(self.gruposAJugar))    
 
         # --- Seleccionar uno de los n grupos (sin repeticion) 
         if len(self.idxg) == 0:
             self.idxg = copy.deepcopy(self.gruposAJugar)
-        nGrupo = idx % ng
-        
-        # print (f"{ng=}. {nGrupo=}. {self.numsFiguras=}")    
         # nGrupo = self.idxg.pop(randrange(len(self.idxg)))
+        nGrupo = idx % self.ng
+
+        # Borrar terminaciones y seguidos numero anterior
+        if numant > 0:
+            terminacion = numant % 10
+            for i in range(len(self.nFiguras)):
+                self.nFiguras[i] = [x for x in self.nFiguras[i] if x % 10 != terminacion]
+                self.nFiguras[i] = [x for x in self.nFiguras[i] if x != numant]
 
         # --- Seleccionar numero del grupo seleccionado (sin repeticion: pop)
         if len(self.nFiguras[nGrupo]) == 0:
@@ -161,9 +166,11 @@ class Apuesta:
 
         while not found:
             apuesta = [0] * s.NUMS_COMBINACION
+            n = 0
             for i in range(s.NUMS_COMBINACION ):
                 # # ---- NUMEROS DE N GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
-                apuesta[i] = self.bombo.getNumeroFiguras(s, idx=i, ndecenas=0, ngrupos=4)
+                n = self.bombo.getNumeroFiguras(s, idx=i, numant=n, ndecenas=0, ngrupos=4)
+                apuesta[i] = n 
 
                 # ---- NUMEROS AL AZAR
                 # apuesta[i] = self.bombo.getNumeroAlAzar(s)
@@ -241,6 +248,6 @@ def JugarMacroExcel(file, sheet, nApuestas):
 #  Test                                                                  
 ###################################################################################
 if __name__ == "__main__":
-    JugarMacroExcel("Test.xlsx", "PRIMITIVA", 8)
+    JugarMacroExcel("Test.xlsx", "PRIMITIVA", 16)
     
 
