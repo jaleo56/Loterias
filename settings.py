@@ -5,8 +5,8 @@ class Settings:
     RNG_APUESTAS           = ["J2", "Q"]
     
     CEL_ACIERTOS           = "R3"
-    CEL_RESULTADOS         = "S3"
-    CEL_RESUMEN            = "AM3"
+    CEL_RESULTADOS         = "T3"
+    CEL_RESUMEN            = "AN3"
     CEL_APUESTAS           = "J3"
 
     # ----- GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC

@@ -11,12 +11,15 @@ class Figuras:
 
 
 	def _getNumerosAJugar(self, s, ndecenas=None):
-		numeros = []    
-		if ndecenas == 0:
-			# 1. Todos los numeros
+		numeros = []
+		if ndecenas == 0:    
+			# 0. Seleccionar NUMEROS IMPARES
+			numeros = [x for x in range(1, s.NUM_MAYOR  + 1) if x % 2 != 0]
+		elif ndecenas == 0:
+			# 1. Seleccionar TODOS LOS NUMEROS
 			numeros = [x for x in range(1, s.NUM_MAYOR + 1)]	
 		else:
-			# 2. Numeros de N decenas
+			# 2. Seleccionar numeros de N DECENAS
 			for x in range(ndecenas):
 				y = s.DECENAS.pop(randrange(len(s.DECENAS)))
 				numeros.extend([z for z in range((y*10), (y*10)+10)])
@@ -52,7 +55,8 @@ class Figuras:
 		print ("Impares-Bajos-Centrales: ", ibc)
 
 		ls = [pbp, pbc, pap, pac, ibp, ibc, iap, iac]
-		return (ls)
+		lsn= [x for x in ls if len(x) > 0]
+		return (lsn)
 
 
 if __name__ == "__main__":

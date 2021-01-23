@@ -100,47 +100,43 @@ class BomboNumeros:
 
 
     # ----- GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
-    def getNumeroFiguras(self, s, ndecenas=0, ngrupos=3):
+    def getNumeroFiguras(self, s, idx, ndecenas=0, ngrupos=3):
 
         # ---Seleccionar n grupos al azar (primera vez) 
         if len(self.gruposAJugar) == 0: 
             self.numsFiguras, self.gruposAJugar = self._createFiguras(s, ndecenas, ngrupos)     
             self.nFiguras = copy.deepcopy(self.numsFiguras)
             self.idxg     = copy.deepcopy(self.gruposAJugar)
+            ng            = min(ngrupos, len(self.gruposAJugar))    
 
         # --- Seleccionar uno de los n grupos (sin repeticion) 
         if len(self.idxg) == 0:
             self.idxg = copy.deepcopy(self.gruposAJugar)
-        nGrupo = self.idxg.pop(randrange(len(self.idxg)))
+        nGrupo = idx % ng
+        
+        # print (f"{ng=}. {nGrupo=}. {self.numsFiguras=}")    
+        # nGrupo = self.idxg.pop(randrange(len(self.idxg)))
 
         # --- Seleccionar numero del grupo seleccionado (sin repeticion: pop)
         if len(self.nFiguras[nGrupo]) == 0:
             self.nFiguras[nGrupo] = copy.deepcopy(self.numsFiguras[nGrupo])
+        
         return self.nFiguras[nGrupo].pop(randrange(len(self.nFiguras[nGrupo])))
         
 
     def _createFiguras(self, s, ndecenas=0, ngrupos=0):
-        gruposAJugar    = []
-        numsFiguras = []
+        gruposAJugar = []
+        numsFiguras  = []
 
         # --- Obtener numeros de figuras
         f = Figuras()
         numsFiguras = f.getFiguras(s, ndecenas=ndecenas)
 
         # --- Seleccionar n grupos al azar
-        g = [0,1,2,3,4,5,6,7]
-        nsels = 0
-        intentos = 0
-        max_intentos = 20
-        while nsels < ngrupos:
-            intentos += 1
-            ng = g.pop(randrange(len(g)))
-            if len(numsFiguras[ng]) > 0: 
-                nsels += 1
-                gruposAJugar.append(ng)
-            elif intentos >= max_intentos: 
-                print (f"Sobrepasado el maximo de {max_intentos} intentos")
-                break
+        grupos = copy.deepcopy(numsFiguras)
+        gruSel = min(ngrupos, len(numsFiguras))    
+        for x in range(gruSel):
+            gruposAJugar.append(grupos.pop(randrange(len(grupos)))) 
 
         return numsFiguras, gruposAJugar 
 
@@ -164,10 +160,10 @@ class Apuesta:
 
 
         while not found:
+            apuesta = [0] * s.NUMS_COMBINACION
             for i in range(s.NUMS_COMBINACION ):
-                # # print(f"{i=}")    
                 # # ---- NUMEROS DE N GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
-                apuesta[i] = self.bombo.getNumeroFiguras(s, ndecenas=0, ngrupos=5)
+                apuesta[i] = self.bombo.getNumeroFiguras(s, idx=i, ndecenas=0, ngrupos=4)
 
                 # ---- NUMEROS AL AZAR
                 # apuesta[i] = self.bombo.getNumeroAlAzar(s)
@@ -196,7 +192,6 @@ class Apuesta:
                 found = True
             else:
                 apuestas_erroneas += 1
-                apuesta.clear()
 
         print (f"{apuestas_erroneas=}")
         apuesta.sort()
@@ -217,11 +212,12 @@ class Loteria:
     def __init__(self, file, sheet): 
         self.s = Settings(file, sheet)
    
-    def jugarLoteria(self, nApuestas, updXLS=None):
+    def jugarLoteria(self, nApuestas, updXLS=False):
         apuestas = self._getApuestas(int(nApuestas))
-        if updXLS != None:
+        if updXLS:
             self._publicarExcel(apuestas)
-        return apuestas
+        else:
+            print (f"{apuestas=}")
 
     def _getApuestas(self, nApuestas):
         apuestas  = [[0] * self.s.NUMS_COMBINACION ] * nApuestas
@@ -239,8 +235,7 @@ class Loteria:
 ####################################################################################
 def JugarMacroExcel(file, sheet, nApuestas):
     juego = Loteria(file, sheet)
-    apuestas = juego.jugarLoteria(nApuestas, updXLS="yes")
-    print(f"{apuestas=}")
+    juego.jugarLoteria(nApuestas, updXLS=True)
 
 ###################################################################################
 #  Test                                                                  

@@ -13,5 +13,9 @@ def check():
 
     print (f"{seguidos=}")
 
+def rango():
+    for i in range(1,10):
+        print (f"{i=}")
+
 if __name__ == "__main__":
-    check()
+    rango()

@@ -30,17 +30,17 @@ class Estadisticas:
            xls.publicarRango(self.s.CEL_ACIERTOS, self.lAciertos)
 
 
-    def checkAllGanadoras(self, updXLS=None, resumir=None):
+    def checkAllGanadoras(self, updXLS=False, resumir=False):
         xls = self._getInfoFromExcel()
         self.lAciertos, self.lResumen = self._checkGanadoras()
-        if updXLS != None:
+        if updXLS:
             resumen = [self.lResumen]
             for l in self.resultadosRange:
                 resumen.append(l)
-            if resumir == None:
-                xls.publicarRango(self.s.CEL_RESULTADOS,  self.lAciertos)
-            else:
+            if resumir:
                 xls.publicarRango(self.s.CEL_RESUMEN, resumen)
+            else:
+                xls.publicarRango(self.s.CEL_RESULTADOS,  self.lAciertos)
 
 
     def checkFiguras(self, updXLS=None):
@@ -286,7 +286,7 @@ def AciertosMacroExcel(file, sheet):
 
 def CheckGanadorasMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
-    std.checkAllGanadoras(updXLS="yes", resumir=None)
+    std.checkAllGanadoras(updXLS=True, resumir=True)
 
 def CheckFigurasMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
@@ -299,7 +299,6 @@ def CheckDistribucionMacroExcel(file, sheet):
 def CheckNAnterioresMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
     std.checkNAnteriores(updXLS="yes", nAnteriores=7)
-
 def CheckSeguidosMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
     std.checkSeguidos(updXLS="yes")
@@ -308,9 +307,9 @@ def CheckSeguidosMacroExcel(file, sheet):
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    # CheckNAnterioresMacroExcel ("Loterias3.xlsm", "PRIMITIVA")
-    # CheckDistribucionMacroExcel("Loterias3.xlsm", "PRIMITIVA")
-    # CheckGanadorasMacroExcel   ("Loterias3.xlsm", "PRIMITIVA")
-    # CheckFigurasMacroExcel   ("Loterias3.xlsm", "PRIMITIVA")
-    # CheckSeguidosMacroExcel("Loterias3.xlsm", "PRIMITIVA")
-    AciertosMacroExcel("Test.xlsx", "PRIMITIVA")
+    # CheckNAnterioresMacroExcel    ("Loterias3.xlsm", "PRIMITIVA")
+    # CheckDistribucionMacroExcel   ("Loterias3.xls", "PRIMITIVA")
+    CheckGanadorasMacroExcel        ("Test.xlsx", "PRIMITIVA")
+    # CheckFigurasMacroExcel        ("Loterias3.xlsm", "PRIMITIVA")
+    # CheckSeguidosMacroExcel       ("Loterias3.xlsm", "PRIMITIVA")
+    # AciertosMacroExcel            ("Test.xlsx", "PRIMITIVA")
