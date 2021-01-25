@@ -14,7 +14,7 @@ class Estadisticas:
     # API
     #---------------------------------------------------------------------------------------
     def checkAciertos(self, updXLS=False):
-        xls = self._getInfoFromExcel()      # Obtiene, apuestas, eApuestas, ganadoras,
+        xls = self._getInfoFromExcel("ALL")      # Obtiene, apuestas, eApuestas, ganadoras,
         snApuestas = self._getNumsApuestas(self.apuestas)
         self.lAciertos = self._checkAciertos(self.ganadoras, snApuestas)
         if updXLS:
@@ -31,7 +31,7 @@ class Estadisticas:
 
 
     def checkAllGanadoras(self, updXLS=False, resumir=False):
-        xls = self._getInfoFromExcel()
+        xls = self._getInfoFromExcel("ALL")
         self.lAciertos, self.lResumen = self._checkGanadoras()
         if updXLS:
             resumen = [self.lResumen]
@@ -43,9 +43,16 @@ class Estadisticas:
                 xls.publicarRango(self.s.CEL_RESULTADOS,  self.lAciertos)
 
 
+    def checkEstadisticas(self, updXLS=False):
+        xls = self._getInfoFromExcel("APUESTAS")
+        self.lEstadisticas = self._checkEstadisticas(self.apuestas)
+        if updXLS != None:
+            xls.publicarRango(self.s.COL_ESTADISTICAS, self.lEstadisticas)
+
+
     def checkFiguras(self, updXLS=None):
-        xls = self._getGanadorasFromExcel()
-        self.lFiguras = self._checkFiguras()
+        xls = self._getInfoFromExcel("APUESTAS")
+        self.lFiguras = self._checkFiguras(self.apuestas)
         if updXLS != None:
             xls.publicarRango(self.s.COL_FIGURAS, self.lFiguras)
 
@@ -113,22 +120,54 @@ class Estadisticas:
         return lAciertos, lTotal
 
 
-    def _checkFiguras(self):
+    def _checkNAnteriores(self, nAnteriores=7):
+        nApuestas = []
+        lAciertos = []
+        for i in range(len(self.ganadoras)-nAnteriores):
+            sGanadora = set(self.ganadoras.iloc[i])
+            nApuestas.clear()    
+            for j in range(1,nAnteriores+1):
+                l = self.ganadoras.iloc[i+j].tolist()
+                nApuestas += l
+            cApuestas = [x for x in self.s.NUMEROS_LOTO if x not in nApuestas]
+            sApuestas = set(cApuestas)
+            nAciertos = len(sGanadora.intersection(sApuestas))
+            l2 = [nAciertos, len(sApuestas)]
+            lAciertos.append(l2)
+        return lAciertos 
+    
+    def _checkEstadisticas(self, dfCombis):
+        lEstadisticas = []
+        lRes = [] 
+        for i, combi in dfCombis.iterrows():
+            sCombi = set(combi)
+            lf = self._figuras(sCombi)
+            ls = self._seguidos(sCombi)
+            ld = self._distribucion(sCombi)
+            lRes = lf
+            lRes.extend(ls)
+            lRes.extend(ld)
+            lEstadisticas.append(lRes)    
+        return lEstadisticas
+
+
+
+    def _checkFiguras(self, dfCombinaciones):
         lFiguras = []
         self._inicioArraysNumeros()
-        for i, ganadora in self.ganadoras.iterrows():
-            sGanadora   = set(ganadora)
-            pares       = len(sGanadora.intersection(self.numerosPares))
+        for i, combinacion in dfCombinaciones.iterrows():
+            sCombinacion= set(combinacion)
+            pares       = len(sCombinacion.intersection(self.numerosPares))
             impares     = self.s.NUMS_COMBINACION - pares
-            bajos       = len(sGanadora.intersection(self.numerosBajos))
+            bajos       = len(sCombinacion.intersection(self.numerosBajos))
             altos       = self.s.NUMS_COMBINACION - bajos
-            periferia   = len(sGanadora.intersection(self.numerosPeriferia))
+            periferia   = len(sCombinacion.intersection(self.numerosPeriferia))
             centrales   = self.s.NUMS_COMBINACION - periferia
 
             lTerminaciones  = [0] * 11
             lDecenas        = [0] * 7
             lIntervalos     = [0] * 11
-            for n in ganadora:
+            for n in sCombinacion:
                 t = int(n%10)
                 d = int(n/10)
                 v = int(n/5) if n%5 != 0 else int(n/5)-1
@@ -170,23 +209,6 @@ class Estadisticas:
         return lDistribucion
 
 
-    def _checkNAnteriores(self, nAnteriores=7):
-        nApuestas = []
-        lAciertos = []
-        for i in range(len(self.ganadoras)-nAnteriores):
-            sGanadora = set(self.ganadoras.iloc[i])
-            nApuestas.clear()    
-            for j in range(1,nAnteriores+1):
-                l = self.ganadoras.iloc[i+j].tolist()
-                nApuestas += l
-            cApuestas = [x for x in self.s.NUMEROS_LOTO if x not in nApuestas]
-            sApuestas = set(cApuestas)
-            nAciertos = len(sGanadora.intersection(sApuestas))
-            l2 = [nAciertos, len(sApuestas)]
-            lAciertos.append(l2)
-        return lAciertos
-
-
     def _checkSeguidos(self):
         lSeguidos = []
         for x, ganadora in self.ganadoras.iterrows():
@@ -216,17 +238,25 @@ class Estadisticas:
         self.numerosPeriferia = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 21, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
 
     
-    def _getInfoFromExcel(self):
+    def _getInfoFromExcel(self, tipo="GANADORAS"):
         xls = HojaExcel()
-        ganadorasRange = xls.getDataFrame(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_GANADORAS)  
-        self.ganadoras = pd.DataFrame(ganadorasRange, columns=self.s.COLS_GANADORAS)
-        self.eGanadoras = pd.DataFrame(ganadorasRange, columns=self.s.COLS_EGANADORAS )
 
-        apuestasRange = xls.getDataFrame(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_APUESTAS)
-        self.apuestas = pd.DataFrame(apuestasRange, columns=self.s.COLS_APUESTAS)
-        self.eApuestas = pd.DataFrame(apuestasRange, columns=self.s.COLS_EAPUESTAS)
+        if tipo not in ("GANADORAS", "APUESTAS", "ALL"):
+            raise Exception(f"Valor del parametro TIPO es erróneo. {tipo=}")
 
-        self.resultadosRange = xls.getRange(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_RESUMENES)
+        if tipo in ("GANADORAS", "ALL"):
+            ganadorasRange = xls.getDataFrame(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_GANADORAS)  
+            self.ganadoras = pd.DataFrame(ganadorasRange, columns=self.s.COLS_GANADORAS)
+            self.eGanadoras = pd.DataFrame(ganadorasRange, columns=self.s.COLS_EGANADORAS )
+
+        if tipo in ("APUESTAS", "ALL"):
+            apuestasRange = xls.getDataFrame(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_APUESTAS)
+            self.apuestas = pd.DataFrame(apuestasRange, columns=self.s.COLS_APUESTAS)
+            self.eApuestas = pd.DataFrame(apuestasRange, columns=self.s.COLS_EAPUESTAS)
+
+        if tipo in ("ALL"):
+            self.resultadosRange = xls.getRange(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_RESUMENES)
+        
         return xls
 
     
@@ -290,7 +320,7 @@ def CheckGanadorasMacroExcel(file, sheet):
 
 def CheckFigurasMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
-    std.checkFiguras(updXLS="yes")
+    std.checkFiguras(updXLS=True)
 
 def CheckDistribucionMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
@@ -299,6 +329,7 @@ def CheckDistribucionMacroExcel(file, sheet):
 def CheckNAnterioresMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
     std.checkNAnteriores(updXLS="yes", nAnteriores=7)
+
 def CheckSeguidosMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
     std.checkSeguidos(updXLS="yes")
@@ -307,9 +338,9 @@ def CheckSeguidosMacroExcel(file, sheet):
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
+    # AciertosMacroExcel            ("Test.xlsx", "PRIMITIVA")
+    CheckGanadorasMacroExcel      ("Test.xlsx", "PRIMITIVA")
     # CheckNAnterioresMacroExcel    ("Loterias3.xlsm", "PRIMITIVA")
     # CheckDistribucionMacroExcel   ("Loterias3.xls", "PRIMITIVA")
-    CheckGanadorasMacroExcel        ("Test.xlsx", "PRIMITIVA")
-    # CheckFigurasMacroExcel        ("Loterias3.xlsm", "PRIMITIVA")
+    # CheckFigurasMacroExcel        ("Test.xlsx", "PRIMITIVA")
     # CheckSeguidosMacroExcel       ("Loterias3.xlsm", "PRIMITIVA")
-    # AciertosMacroExcel            ("Test.xlsx", "PRIMITIVA")

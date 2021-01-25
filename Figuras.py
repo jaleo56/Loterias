@@ -14,7 +14,8 @@ class Figuras:
 		numeros = []
 		if ndecenas == 0:    
 			# 0. Seleccionar NUMEROS IMPARES
-			numeros = [x for x in range(1, s.NUM_MAYOR  + 1) if x % 2 != 0]
+			numeros = [x for x in range(20, 44)]
+			# numeros = [x for x in range(1, s.NUM_MAYOR  + 1) if x % 2 != 0]
 		elif ndecenas == 0:
 			# 1. Seleccionar TODOS LOS NUMEROS
 			numeros = [x for x in range(1, s.NUM_MAYOR + 1)]	

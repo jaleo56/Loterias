@@ -112,8 +112,8 @@ class BomboNumeros:
         # --- Seleccionar uno de los n grupos (sin repeticion) 
         if len(self.idxg) == 0:
             self.idxg = copy.deepcopy(self.gruposAJugar)
-        # nGrupo = self.idxg.pop(randrange(len(self.idxg)))
-        nGrupo = idx % self.ng
+        nGrupo = self.idxg.pop(randrange(len(self.idxg)))
+        # nGrupo = idx % self.ng
 
         # Borrar terminaciones y seguidos numero anterior
         if numant > 0:
@@ -138,10 +138,10 @@ class BomboNumeros:
         numsFiguras = f.getFiguras(s, ndecenas=ndecenas)
 
         # --- Seleccionar n grupos al azar
-        grupos = copy.deepcopy(numsFiguras)
         gruSel = min(ngrupos, len(numsFiguras))    
+        g = [x for x in range(len(numsFiguras))]
         for x in range(gruSel):
-            gruposAJugar.append(grupos.pop(randrange(len(grupos)))) 
+            gruposAJugar.append(g.pop(randrange(len(g)))) 
 
         return numsFiguras, gruposAJugar 
 
@@ -169,7 +169,7 @@ class Apuesta:
             n = 0
             for i in range(s.NUMS_COMBINACION ):
                 # # ---- NUMEROS DE N GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
-                n = self.bombo.getNumeroFiguras(s, idx=i, numant=n, ndecenas=0, ngrupos=4)
+                n = self.bombo.getNumeroFiguras(s, idx=i, numant=n, ndecenas=0, ngrupos=8)
                 apuesta[i] = n 
 
                 # ---- NUMEROS AL AZAR
@@ -248,6 +248,6 @@ def JugarMacroExcel(file, sheet, nApuestas):
 #  Test                                                                  
 ###################################################################################
 if __name__ == "__main__":
-    JugarMacroExcel("Test.xlsx", "PRIMITIVA", 16)
+    JugarMacroExcel("Test.xlsx", "PRIMITIVA", 8)
     
 
