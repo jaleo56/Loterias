@@ -338,8 +338,8 @@ def CheckSeguidosMacroExcel(file, sheet):
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    # AciertosMacroExcel            ("Test.xlsx", "PRIMITIVA")
-    CheckGanadorasMacroExcel      ("Test.xlsx", "PRIMITIVA")
+    AciertosMacroExcel            ("Test.xlsx", "PRIMITIVA")
+    # CheckGanadorasMacroExcel      ("Test.xlsx", "PRIMITIVA")
     # CheckNAnterioresMacroExcel    ("Loterias3.xlsm", "PRIMITIVA")
     # CheckDistribucionMacroExcel   ("Loterias3.xls", "PRIMITIVA")
     # CheckFigurasMacroExcel        ("Test.xlsx", "PRIMITIVA")

@@ -248,6 +248,6 @@ def JugarMacroExcel(file, sheet, nApuestas):
 #  Test                                                                  
 ###################################################################################
 if __name__ == "__main__":
-    JugarMacroExcel("Test.xlsx", "PRIMITIVA", 8)
+    JugarMacroExcel("Test.xlsx", "PRIMITIVA", 100)
     
 
