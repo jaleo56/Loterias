@@ -194,4 +194,4 @@ def CheckSeguidosMacroExcel(file, sheet):
 if __name__ == "__main__":
     # CheckFigurasMacroExcel        ("Test.xlsm", "PRIMITIVA")
     # CheckSeguidosMacroExcel       ("Test.xlsm", "PRIMITIVA")
-    CheckDistribucionMacroExcel   ("Test.xlsm", "PRIMITIVA")
+    # CheckDistribucionMacroExcel   ("Test.xlsm", "PRIMITIVA")

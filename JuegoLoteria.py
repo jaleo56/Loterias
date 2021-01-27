@@ -100,17 +100,20 @@ class BomboNumeros:
 
         # ---Seleccionar n grupos al azar (primera vez) 
         if len(self.gruposAJugar) == 0: 
-            self.numsFiguras, self.gruposAJugar = self._createFiguras(s, ndecenas, ngrupos)     
-            self.nFiguras = copy.deepcopy(self.numsFiguras)
-            self.idxg     = copy.deepcopy(self.gruposAJugar)
-            self.ng       = min(ngrupos, len(self.gruposAJugar))    
+            self.nFigurasJuego, self.gruposAJugar = self._createFiguras(s, ndecenas, ngrupos)     
+            self.nFigurasApuesta = copy.deepcopy(self.nFigurasJuego)
+            self.idxg            = copy.deepcopy(self.gruposAJugar)
+            self.ng              = min(ngrupos, len(self.gruposAJugar))    
 
         # Borrar terminaciones y seguidos numero anterior
-        if numant > 0:
+        if idx == 0:
+            self.nFiguras = copy.deepcopy(self.nFigurasApuesta)        
+        elif numant > 0:
             terminacion = numant % 10
             for i in range(len(self.nFiguras)):
                 self.nFiguras[i] = [x for x in self.nFiguras[i] if int(x) % 10 != terminacion]
                 self.nFiguras[i] = [x for x in self.nFiguras[i] if int(x) != numant+1]
+                self.nFiguras[i] = [x for x in self.nFiguras[i] if int(x) != numant-1]
         
         # --- Seleccionar uno de los n grupos (sin repeticion) 
         if len(self.idxg) == 0:
@@ -120,9 +123,14 @@ class BomboNumeros:
 
         # --- Seleccionar numero del grupo seleccionado (sin repeticion: pop)
         if len(self.nFiguras[nGrupo]) == 0:
-            self.nFiguras[nGrupo] = copy.deepcopy(self.numsFiguras[nGrupo])
+            if len(self.nFigurasApuesta[nGrupo]) == 0:
+                self.nFigurasApuesta[nGrupo] = copy.deepcopy(self.nFigurasJuego[nGrupo])
+            self.nFiguras[nGrupo] = copy.deepcopy(self.nFigurasApuesta[nGrupo])
  
-        return self.nFiguras[nGrupo].pop(randrange(len(self.nFiguras[nGrupo])))
+        n = self.nFiguras[nGrupo].pop(randrange(len(self.nFiguras[nGrupo])))
+        self.nFigurasApuesta[nGrupo].remove(n)
+        # print (f"{nGrupo=}. {n=}")
+        return n
         
 
     def _createFiguras(self, s, ndecenas=0, ngrupos=0):
