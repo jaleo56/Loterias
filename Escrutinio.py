@@ -25,45 +25,40 @@ class Escrutinio:
 
     def checkAllGanadoras(self, updXLS=False, resumir=False):
         xls = self._getInfoFromExcel("ALL")     # Obtiene, apuestas, eApuestas, ganadoras,
-        self.lAciertos, self.lResumen = self._checkGanadoras()
+        self.lAciertos, self.lResFila, self.lResumen = self._checkGanadoras()
         if updXLS:
-            resumen = [self.lResumen]
-            for l in self.resultadosRange:
-                resumen.append(l)
             if resumir:
+                resumen = [self.lResumen]
+                for l in self.resultadosRange:
+                    resumen.append(l)
                 xls.publicarRango(self.s.CEL_RESUMEN, resumen)
             else:
-                xls.publicarRango(self.s.CEL_RESULTADOS, self.lAciertos)
+                xls.publicarRango(self.s.CEL_RESUMEN, self.lResFila)
+                # xls.publicarRango(self.s.CEL_RESULTADOS, self.lAciertos)
         else:
             print (f"{self.lAciertos=}")
 
-
-    def checkNAnteriores(self, updXLS=False, nAnteriores=10):
-        xls = self._getInfoFromExcel("GANADORAS")      
-        self.lAciertos = self._checkNAnteriores(nAnteriores)
-        if updXLS:
-           xls.publicarRango(self.s.CEL_ACIERTOS, self.lAciertos)
-        else:
-            print (f"{self.lAciertos=}")
-
+    
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 1
     #---------------------------------------------------------------------------------------
-    def _checkAciertos(self, ganadoras, nssApuestas):
+    def _checkAciertos(self, ganadoras, snApuestas):
         lAciertos =[]
-        nNumeros = len(nssApuestas)
+        nNumeros = len(snApuestas)
         for x, ganadora in ganadoras.iterrows():
             if x == 0: continue
             sGanadora = set(ganadora)
-            naciertos = len(sGanadora.intersection(nssApuestas))
+            naciertos = len(sGanadora.intersection(snApuestas))
             lFila = [naciertos, nNumeros]
             lAciertos.append(lFila)
         return lAciertos
 
 
     def _checkGanadoras(self):
-        lAciertos =[]
+        lAciertos = []
         resumen   = []
+        lResFila  = []
+        # numsDifer = len(self._getNumsApuestas(self.apuestas))
         for x in range(len(self.ganadoras)):
             neRow = []
             cntRow = [0] * 61
@@ -89,29 +84,13 @@ class Escrutinio:
                 neRow.append("")
             res = self._listaAciertos(cntRow)
             lAciertos.append(neRow + res)
+            lResFila.append(res)
             resumen.append(res)
 
         total = pd.DataFrame(resumen).sum()
         lTotal = total.tolist()
-        return lAciertos, lTotal
+        return lAciertos, lResFila, lTotal
 
-
-    def _checkNAnteriores(self, nAnteriores=7):
-        nApuestas = []
-        lAciertos = []
-        for i in range(len(self.ganadoras)-nAnteriores):
-            sGanadora = set(self.ganadoras.iloc[i])
-            nApuestas.clear()    
-            for j in range(1,nAnteriores+1):
-                l = self.ganadoras.iloc[i+j].tolist()
-                nApuestas += l
-            cApuestas = [x for x in self.s.NUMEROS_LOTO if x not in nApuestas]
-            sApuestas = set(cApuestas)
-            nAciertos = len(sGanadora.intersection(sApuestas))
-            l2 = [nAciertos, len(sApuestas)]
-            lAciertos.append(l2)
-        return lAciertos 
-    
 
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 2
@@ -137,20 +116,6 @@ class Escrutinio:
             self.resultadosRange = xls.getRange(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_RESUMENES)
         
         return xls
-
-    # # Get numeros y estrellas de las 10 ganadoras anteriores    
-    # def _getApuestas(self, nganadora=None):
-    #     if nganadora == None:
-    #         return self.apuestas, self.eApuestas
-    #     else:
-    #         apuestas  = []
-    #         estrellas = []
-    #         for y in range(nganadora+1, nganadora+11):
-    #             apuestas.append(self.ganadoras.iloc[y])
-    #             estrellas.append(self.eGanadoras.iloc[y])
-    #         dfApuestas = pd.DataFrame(apuestas)
-    #         dfEstrellas = pd.DataFrame(estrellas)
-    #         return dfApuestas, dfEstrellas
 
 
     def _getNumsApuestas(self, apuestas):
@@ -190,14 +155,9 @@ def CheckGanadorasMacroExcel(file, sheet):
     std = Escrutinio(file, sheet)
     std.checkAllGanadoras(updXLS=True, resumir=True)
 
-def CheckNAnterioresMacroExcel(file, sheet):
-    std =Escrutinio(file, sheet)
-    std.checkNAnteriores(updXLS="yes", nAnteriores=7)
-
 ########################################################################################
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    # AciertosMacroExcel            ("Test.xlsx", "PRIMITIVA")
-    CheckGanadorasMacroExcel      ("Test.xlsx", "PRIMITIVA")
-    # CheckNAnterioresMacroExcel    ("Loterias3.xlsm", "PRIMITIVA")
+    # AciertosMacroExcel            ("Test.xlsm", "PRIMITIVA")
+    CheckGanadorasMacroExcel      ("Test.xlsm", "PRIMITIVA")

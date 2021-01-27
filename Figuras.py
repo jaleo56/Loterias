@@ -46,14 +46,14 @@ class Figuras:
 		iac = list(self.numerosImpares.intersection(self.numerosAltos).intersection(self.numerosCentrales))
 		ibp = list(self.numerosImpares.intersection(self.numerosBajos).intersection(self.numerosPeriferia))
 		ibc = list(self.numerosImpares.intersection(self.numerosBajos).intersection(self.numerosCentrales))
-		print ("Pares-Altos-Periferia: ", pap)
-		print ("Pares-Altos-Centrales: ", pac)
-		print ("Pares-Bajos-Periferia: ", pbp)
-		print ("Pares-Bajos-Centrales: ", pbc)
-		print ("Impares-Altos-Periferia: ", iap)
-		print ("Impares-Altos-Centrales: ", iac)
-		print ("Impares-Bajos-Periferia: ", ibp)
-		print ("Impares-Bajos-Centrales: ", ibc)
+		# print ("Pares-Altos-Periferia: ", pap)
+		# print ("Pares-Altos-Centrales: ", pac)
+		# print ("Pares-Bajos-Periferia: ", pbp)
+		# print ("Pares-Bajos-Centrales: ", pbc)
+		# print ("Impares-Altos-Periferia: ", iap)
+		# print ("Impares-Altos-Centrales: ", iac)
+		# print ("Impares-Bajos-Periferia: ", ibp)
+		# print ("Impares-Bajos-Centrales: ", ibc)
 
 		ls = [pbp, pbc, pap, pac, ibp, ibc, iap, iac]
 		lsn= [x for x in ls if len(x) > 0]

@@ -94,10 +94,6 @@ class BomboNumeros:
             self.numerosCentrales = self.numerosInitCentrales.copy()
         return self.numerosCentrales.pop(randrange(len(self.numerosCentrales)))
 
-    def getIntervaloFromNumero(self, s, numero):
-        intervalo = (i for i, e in enumerate(self.numerosIntervalos) if e >= numero)
-        return next(intervalo)
-        
 
     # ----- GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
     def getNumeroFiguras(self, s, idx, numant=0, ndecenas=0, ngrupos=3):
@@ -109,23 +105,23 @@ class BomboNumeros:
             self.idxg     = copy.deepcopy(self.gruposAJugar)
             self.ng       = min(ngrupos, len(self.gruposAJugar))    
 
+        # Borrar terminaciones y seguidos numero anterior
+        if numant > 0:
+            terminacion = numant % 10
+            for i in range(len(self.nFiguras)):
+                self.nFiguras[i] = [x for x in self.nFiguras[i] if int(x) % 10 != terminacion]
+                self.nFiguras[i] = [x for x in self.nFiguras[i] if int(x) != numant+1]
+        
         # --- Seleccionar uno de los n grupos (sin repeticion) 
         if len(self.idxg) == 0:
             self.idxg = copy.deepcopy(self.gruposAJugar)
         nGrupo = self.idxg.pop(randrange(len(self.idxg)))
         # nGrupo = idx % self.ng
 
-        # Borrar terminaciones y seguidos numero anterior
-        if numant > 0:
-            terminacion = numant % 10
-            for i in range(len(self.nFiguras)):
-                self.nFiguras[i] = [x for x in self.nFiguras[i] if x % 10 != terminacion]
-                self.nFiguras[i] = [x for x in self.nFiguras[i] if x != numant]
-
         # --- Seleccionar numero del grupo seleccionado (sin repeticion: pop)
         if len(self.nFiguras[nGrupo]) == 0:
             self.nFiguras[nGrupo] = copy.deepcopy(self.numsFiguras[nGrupo])
-        
+ 
         return self.nFiguras[nGrupo].pop(randrange(len(self.nFiguras[nGrupo])))
         
 
@@ -143,7 +139,46 @@ class BomboNumeros:
         for x in range(gruSel):
             gruposAJugar.append(g.pop(randrange(len(g)))) 
 
+        print (f"{numsFiguras=}")
+        print (f"{gruposAJugar=}")
         return numsFiguras, gruposAJugar 
+
+
+    def getIntervaloFromNumero(self, s, numero):
+        intervalo = (i for i, e in enumerate(self.numerosIntervalos) if e >= numero)
+        return next(intervalo)
+        
+
+    # def _checkNAnteriores(self, s, nAnteriores=7):
+    #     nApuestas = []
+    #     lAciertos = []
+    #     for i in range(len(self.ganadoras)-nAnteriores):
+    #         sGanadora = set(self.ganadoras.iloc[i])
+    #         nApuestas.clear()    
+    #         for j in range(1,nAnteriores+1):
+    #             l = self.ganadoras.iloc[i+j].tolist()
+    #             nApuestas += l
+    #         cApuestas = [x for x in self.s.NUMEROS_LOTO if x not in nApuestas]
+    #         sApuestas = set(cApuestas)
+    #         nAciertos = len(sGanadora.intersection(sApuestas))
+    #         l2 = [nAciertos, len(sApuestas)]
+    #         lAciertos.append(l2)
+    #     return lAciertos 
+    
+
+    # Get numeros y estrellas APUESTAS de las 10 ganadoras anteriores    
+    # def _getApuestas(self, nganadora=None):
+    #     if nganadora == None:
+    #         return self.apuestas, self.eApuestas
+    #     else:
+    #         apuestas  = []
+    #         estrellas = []
+    #         for y in range(nganadora+1, nganadora+11):
+    #             apuestas.append(self.ganadoras.iloc[y])
+    #             estrellas.append(self.eGanadoras.iloc[y])
+    #         dfApuestas = pd.DataFrame(apuestas)
+    #         dfEstrellas = pd.DataFrame(estrellas)
+    #         return dfApuestas, dfEstrellas
 
 
 ###################################################################################
@@ -154,6 +189,7 @@ class Apuesta:
     def __init__(self, s):
         self.bombo = BomboNumeros(s)
 
+    
     def obtenerApuesta(self, s):
         apuesta  = [0] * s.NUMS_COMBINACION 
         estrella = [0] * 2
@@ -163,7 +199,6 @@ class Apuesta:
         apuestas_erroneas = 0
         found = False
 
-
         while not found:
             apuesta = [0] * s.NUMS_COMBINACION
             n = 0
@@ -171,6 +206,7 @@ class Apuesta:
                 # # ---- NUMEROS DE N GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
                 n = self.bombo.getNumeroFiguras(s, idx=i, numant=n, ndecenas=0, ngrupos=8)
                 apuesta[i] = n 
+
 
                 # ---- NUMEROS AL AZAR
                 # apuesta[i] = self.bombo.getNumeroAlAzar(s)
@@ -210,11 +246,21 @@ class Apuesta:
             return apuesta + [0] + estrella
         else: 
             return apuesta + estrella 
+
+
+    # def checkNAnteriores(self, updXLS=False, nAnteriores=10):
+    #     xls = self._getInfoFromExcel("GANADORAS")      
+    #     self.lAciertos = self._checkNAnteriores(nAnteriores)
+    #     if updXLS:
+    #        xls.publicarRango(self.s.CEL_ACIERTOS, self.lAciertos)
+    #     else:
+    #         print (f"{self.lAciertos=}")
                     
 ###################################################################################
 #  Clase JuegoLoteria                                                    
 #  Obtiene el conjunto de apuestas deseadas de una loteria.                  
 ###################################################################################
+
 class Loteria: 
     def __init__(self, file, sheet): 
         self.s = Settings(file, sheet)
@@ -244,10 +290,15 @@ def JugarMacroExcel(file, sheet, nApuestas):
     juego = Loteria(file, sheet)
     juego.jugarLoteria(nApuestas, updXLS=True)
 
+def CheckNAnterioresMacroExcel(file, sheet):
+    juego = Loteria(file, sheet)
+    juego.checknanteriores(updxls="yes", nanteriores=7)
+
 ###################################################################################
 #  Test                                                                  
 ###################################################################################
 if __name__ == "__main__":
-    JugarMacroExcel("Test.xlsx", "PRIMITIVA", 100)
+    JugarMacroExcel("Test.xlsm", "PRIMITIVA", 8)
+    # CheckNAnterioresMacroExcel    ("Loterias3.xlsm", "PRIMITIVA")
     
 
