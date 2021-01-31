@@ -2,12 +2,12 @@ from array import *
 
 class Settings:
     RNG_GANADORAS          = ["B2", "I"]
-    RNG_APUESTAS           = ["J2", "Q"]
+    RNG_APUESTAS           = ["K2", "R"]
     
-    CEL_ACIERTOS           = "R3"
-    CEL_RESULTADOS         = "T3"
-    CEL_RESUMEN            = "AN3"
-    CEL_APUESTAS           = "J3"
+    CEL_ACIERTOS           = "T3"
+    CEL_RESULTADOS         = "AP3"
+    CEL_RESUMEN            = "AP3"
+    CEL_APUESTAS           = "K3"
 
     # ----- GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
     GRUPOS_NUMS = [ 
@@ -52,8 +52,8 @@ class Settings:
             self.COLS_EGANADORAS     = ['C']
             self.COLS_APUESTAS       = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6']
             self.COLS_EAPUESTAS      = ['C']
-            self.RNG_RESUMENES       = ["AN3", "AS"]
-            self.COL_FIGURAS         = "AT3"
+            self.RNG_RESUMENES       = ["AP3", "AU"]
+            self.COL_FIGURAS         = "AV3"
             self.COL_DISTRIBUCION    = "CC3"
             self.NUMS_PERIFERIA.remove(50)
             self.GRUPOS_NUMS[6].remove(50)

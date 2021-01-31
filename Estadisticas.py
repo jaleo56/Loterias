@@ -22,8 +22,6 @@ class Estadisticas:
         else:
             print (self.lEstadisticas)
 
-  
-
 
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 1
@@ -32,7 +30,7 @@ class Estadisticas:
     def _checkEstadisticas(self, dfCombis):
         lEstadisticas = []
         lRes          = []  
-
+        print (f"{dfCombis=}")
         self._inicioArraysNumeros()
         
         for i, combi in dfCombis.iterrows():
@@ -60,7 +58,7 @@ class Estadisticas:
         centrales   = self.s.NUMS_COMBINACION - periferia
 
         lTerminaciones  = [0] * 11
-        lDecenas        = [0] * 7
+        lDecenas        = [0] * 6
         lIntervalos     = [0] * 11
         for n in sCombinacion:
             t = int(n%10)
@@ -73,13 +71,19 @@ class Estadisticas:
         for n in range(10):
             if lTerminaciones[n] > 0: lTerminaciones[10] += 1
 
+        fDecenas    = ""
+        cntDecenas  = 0
+        lDecenas.sort(reverse=True)
         for n in range(6):
-            if lDecenas[n] > 0: lDecenas[6] += 1
+            if lDecenas[n] > 0: 
+                cntDecenas += 1
+                fDecenas += str(lDecenas[n]) if fDecenas == "" else str("|") + str(lDecenas[n])
+        print (f"{fDecenas=}")
 
         for n in range(10):
             if lIntervalos[n] > 0: lIntervalos[10] += 1
 
-        lFiguras = [altos, bajos, pares, impares, periferia, centrales]
+        lFiguras = [fDecenas, altos, bajos, pares, impares, periferia, centrales]
         lFiguras.extend(lTerminaciones)
         lFiguras.extend(lIntervalos)
 
@@ -121,7 +125,6 @@ class Estadisticas:
         return lDistribucion
 
 
-    
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 2
     #---------------------------------------------------------------------------------------
@@ -155,7 +158,6 @@ class Estadisticas:
 ########################################################################################
 # MACROS EXCEL
 #---------------------------------------------------------------------------------------
-
 def CheckEstadisticasMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
     std.checkEstadisticas(updXLS=True)
@@ -164,5 +166,5 @@ def CheckEstadisticasMacroExcel(file, sheet):
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    CheckEstadisticasMacroExcel("Test.xlsm", "PRIMITIVA")
+    CheckEstadisticasMacroExcel("Loterias.xlsm", "PRIMITIVA")
  

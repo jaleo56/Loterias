@@ -222,11 +222,11 @@ class Apuesta:
 
 
                 # ---- NUMEROS AL AZAR
-                apuesta[i] = self.bombo.getNumeroAlAzar(s, repetir=False)
+                # apuesta[i] = self.bombo.getNumeroAlAzar(s, repetir=False)
 
                 # ---- NUMEROS TERMINACIONES DIFERENTES
-                # apuesta[i] = self.bombo.getNumeroTerminacion(s, idx=i, terminacion=t)
-                # t = apuesta[i] % 10
+                apuesta[i] = self.bombo.getNumeroTerminacion(s, idx=i, terminacion=t)
+                t = apuesta[i] % 10
 
                 # ---- ALTERAR NUMEROS
                 # if i == 0:
@@ -243,11 +243,24 @@ class Apuesta:
                 #   apuesta[i] = self.bombo.getNumeroBajo()
                 #
                 # ultimo = apuesta[i]
+            
+            # Control de decenas
+            lDecenas = [0] * 6
+            fDecenas = ""
+            for n in apuesta:
+                d = int(n/10)
+                lDecenas[d] += 1
 
-            if len(apuesta) == len(set(apuesta)): 
-                found = True
-            else:
-                apuestas_erroneas += 1
+            lDecenas.sort(reverse=True)
+            for n in lDecenas:
+                if n > 0: 
+                    fDecenas += str(n) if fDecenas == "" else str("|") + str(n)
+            
+            if fDecenas in ("3|2|1", "2|2|1|1", "3|1|1|1"):
+                if len(apuesta) == len(set(apuesta)): 
+                    found = True
+                else: apuestas_erroneas += 1
+            else: apuestas_erroneas += 1
 
         print (f"{apuestas_erroneas=}")
         apuesta.sort()
