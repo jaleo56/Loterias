@@ -38,6 +38,15 @@ class Escrutinio:
         else:
             print (f"{self.lAciertos=}")
 
+     
+    def checkNAnteriores(self, updXLS=False, nAnteriores=10, fuera=True):
+        print(f"{nAnteriores=}")
+        xls = self._getInfoFromExcel("GANADORAS")      
+        self.lAciertos = self._checkNAnteriores(nAnteriores, fuera)
+        if updXLS:
+           xls.publicarRango(self.s.CEL_ACIERTOS, self.lAciertos)
+        else:
+            print (f"{self.lAciertos=}") 
     
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 1
@@ -91,6 +100,27 @@ class Escrutinio:
         lTotal = total.tolist()
         return lAciertos, lResFila, lTotal
 
+
+    def _checkNAnteriores(self, nAnteriores=7, fuera=True):
+        nApuestas = []
+        lAciertos = []
+        cApuestas = []
+        print(f"{nAnteriores=}")
+        for i in range(len(self.ganadoras)-nAnteriores):
+            sGanadora = set(self.ganadoras.iloc[i])
+            nApuestas.clear()    
+            for j in range(1,nAnteriores+1):
+                l = self.ganadoras.iloc[i+j].tolist()
+                nApuestas += l
+            if fuera:
+                cApuestas = [x for x in self.s.NUMEROS_LOTO if x not in nApuestas]
+                sApuestas = set(cApuestas)
+            else:
+                sApuestas = set(nApuestas)
+            nAciertos = len(sGanadora.intersection(sApuestas))
+            l2 = [nAciertos, len(sApuestas)]
+            lAciertos.append(l2)
+        return lAciertos 
 
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 2
@@ -155,9 +185,14 @@ def CheckGanadorasMacroExcel(file, sheet):
     std = Escrutinio(file, sheet)
     std.checkAllGanadoras(updXLS=True, resumir=True)
 
+def CheckNAnterioresMacroExcel (file, sheet, updXLS=True):
+    esc = Escrutinio(file, sheet)
+    esc.checkNAnteriores(updXLS, nAnteriores=10, fuera=False)
+
 ########################################################################################
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
     # AciertosMacroExcel            ("Test.xlsm", "PRIMITIVA")
-    CheckGanadorasMacroExcel      ("Test.xlsm", "PRIMITIVA")
+    # CheckGanadorasMacroExcel      ("Test.xlsm", "PRIMITIVA")
+    CheckNAnterioresMacroExcel    ("Test.xlsm", "PRIMITIVA")

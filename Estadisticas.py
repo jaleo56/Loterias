@@ -14,125 +14,114 @@ class Estadisticas:
     # API
     #---------------------------------------------------------------------------------------
 
-    def checkFiguras(self, updXLS=None):
+    def checkEstadisticas(self, updXLS=False):
         xls = self._getInfoFromExcel(tipo="APUESTAS")
-        self.lFiguras = self._checkFiguras(self.apuestas)
-        if updXLS != None:
-            xls.publicarRango(self.s.COL_FIGURAS, self.lFiguras)
-
-     
-    def checkSeguidos(self, updXLS=None):
-        xls = self._getInfoFromExcel(tipo="APUESTAS")
-        self.lSeguidos = self._checkSeguidos(self.apuestas)
-        if updXLS != None:
-            xls.publicarRango(self.s.COL_SEGUIDOS, self.lSeguidos)   
-        else:
-            print(self.lSeguidos)
-            
-    
-    def checkDistribucion(self, updXLS=True):
-        xls = self._getInfoFromExcel(tipo="APUESTAS")
-        self.lDistribucion = self._checkDistribucion(self.apuestas)
+        self.lEstadisticas = self._checkEstadisticas(self.apuestas)
         if updXLS:
-            xls.publicarRango(self.s.COL_DISTRIBUCION, self.lDistribucion)   
+            xls.publicarRango(self.s.COL_FIGURAS, self.lEstadisticas)
+        else:
+            print (self.lEstadisticas)
+
   
+
+
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 1
     #---------------------------------------------------------------------------------------
     
     def _checkEstadisticas(self, dfCombis):
         lEstadisticas = []
-        lRes = [] 
+        lRes          = []  
+
+        self._inicioArraysNumeros()
+        
         for i, combi in dfCombis.iterrows():
-            sCombi = set(combi)
-            lf = self._figuras(sCombi)
-            ls = self._seguidos(sCombi)
-            ld = self._distribucion(sCombi)
+            if i == 0: continue
+        
+            lf = self._checkFiguras(set(combi))
+            ls = self._checkSeguidos(list(combi))
+            ld = self._checkDistribucion(set(combi))
+        
             lRes = lf
             lRes.extend(ls)
             lRes.extend(ld)
+
             lEstadisticas.append(lRes)    
         return lEstadisticas
 
 
-    def _checkFiguras(self, dfCombinaciones):
+    def _checkFiguras(self, sCombinacion):
         lFiguras = []
-        self._inicioArraysNumeros()
-        for i, combinacion in dfCombinaciones.iterrows():
-            sCombinacion= set(combinacion)
-            pares       = len(sCombinacion.intersection(self.numerosPares))
-            impares     = self.s.NUMS_COMBINACION - pares
-            bajos       = len(sCombinacion.intersection(self.numerosBajos))
-            altos       = self.s.NUMS_COMBINACION - bajos
-            periferia   = len(sCombinacion.intersection(self.numerosPeriferia))
-            centrales   = self.s.NUMS_COMBINACION - periferia
+        pares       = len(sCombinacion.intersection(self.numerosPares))
+        impares     = self.s.NUMS_COMBINACION - pares
+        bajos       = len(sCombinacion.intersection(self.numerosBajos))
+        altos       = self.s.NUMS_COMBINACION - bajos
+        periferia   = len(sCombinacion.intersection(self.numerosPeriferia))
+        centrales   = self.s.NUMS_COMBINACION - periferia
 
-            lTerminaciones  = [0] * 11
-            lDecenas        = [0] * 7
-            lIntervalos     = [0] * 11
-            for n in sCombinacion:
-                t = int(n%10)
-                d = int(n/10)
-                v = int(n/5) if n%5 != 0 else int(n/5)-1
-                lTerminaciones[t] += 1
-                lDecenas[d]       += 1
-                lIntervalos[v]    += 1 
+        lTerminaciones  = [0] * 11
+        lDecenas        = [0] * 7
+        lIntervalos     = [0] * 11
+        for n in sCombinacion:
+            t = int(n%10)
+            d = int(n/10)
+            v = int(n/5) if n%5 != 0 else int(n/5)-1
+            lTerminaciones[t] += 1
+            lDecenas[d]       += 1
+            lIntervalos[v]    += 1 
 
-            for n in range(10):
-                if lTerminaciones[n] > 0: lTerminaciones[10] += 1
+        for n in range(10):
+            if lTerminaciones[n] > 0: lTerminaciones[10] += 1
 
-            for n in range(6):
-                if lDecenas[n] > 0: lDecenas[6] += 1
+        for n in range(6):
+            if lDecenas[n] > 0: lDecenas[6] += 1
 
-            for n in range(10):
-                if lIntervalos[n] > 0: lIntervalos[10] += 1
+        for n in range(10):
+            if lIntervalos[n] > 0: lIntervalos[10] += 1
 
-            l = [altos, bajos, pares, impares, periferia, centrales]
-            l.extend(lTerminaciones)
-            l.extend(lIntervalos)
-            # l.extend(lDecenas)
+        lFiguras = [altos, bajos, pares, impares, periferia, centrales]
+        lFiguras.extend(lTerminaciones)
+        lFiguras.extend(lIntervalos)
 
-            lFiguras.append(l)    
         return lFiguras
 
 
-    def _checkSeguidos(self, dfCombinaciones):
-        lSeguidos = []
-        for x, combinacion in dfCombinaciones.iterrows():
-            if x == 0: continue
-            lCombinacion = list(combinacion)
-            seguidos = [0] * 7
-            seg = 0
-            for i in range(1, 6):
-                if lCombinacion[i] - lCombinacion[i-1] == 1:
-                    seg += 1
-                else:
-                    if seg > 0: seguidos[seg] += 1
-                    seg = 0
+    def _checkSeguidos(self, lCombinacion):
+        lSeguidos = [0] * 7
+        seg = 0
+        for i in range(1, 6):
+            if lCombinacion[i] - lCombinacion[i-1] == 1:
+                seg += 1
             else:
-                if seg > 0: seguidos[seg] += 1 
-            for i in range(6): 
-                if seguidos[i] > 0: seguidos[6] += 1  
-            lSeguidos.append(seguidos)    
+                if seg > 0: lSeguidos[seg] += 1
+                seg = 0
+        else:
+            if seg > 0: lSeguidos[seg] += 1 
+
+        for i in range(6): 
+            if lSeguidos[i] > 0: lSeguidos[6] += 1  
+        
         return lSeguidos
 
     
-    def _checkDistribucion(self, dfCombinaciones):
-        lDistribucion = []
-        for i in range(len(dfCombinaciones)):
-            sCombinacion = set(dfCombinaciones.iloc[i])
-            ac = [0] * 9
-            for x in range(len(self.s.GRUPOS_NUMS)):
-                numeros = set(self.s.GRUPOS_NUMS[x])
-                ac[x] = len(sCombinacion.intersection(numeros))  
-            nGrupos = 0
-            for na in ac:
-                if na > 0: nGrupos += 1    
-            ac[8] = nGrupos      
-            lDistribucion.append(ac)    
+    def _checkDistribucion(self, sCombinacion):
+        lDistribucion = [0] * 9
+
+        for x in range(len(self.s.GRUPOS_NUMS)):
+            numeros = set(self.s.GRUPOS_NUMS[x])
+            lDistribucion[x] = len(sCombinacion.intersection(numeros))  
+
+        nGrupos = 0
+
+        for na in lDistribucion:
+            if na > 0: nGrupos += 1    
+
+        lDistribucion[8] = nGrupos    
+              
         return lDistribucion
 
 
+    
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 2
     #---------------------------------------------------------------------------------------
@@ -163,35 +152,17 @@ class Estadisticas:
         
         return xls
 
-
-    def _getNumsApuestas(self, apuestas):
-        nApuestas =[]
-        for y, apuesta in apuestas.iterrows():
-            if y == 0: continue
-            l = [*apuesta]
-            nApuestas = nApuestas + l
-        return set(nApuestas)
-
 ########################################################################################
 # MACROS EXCEL
 #---------------------------------------------------------------------------------------
 
-def CheckFigurasMacroExcel(file, sheet):
+def CheckEstadisticasMacroExcel(file, sheet):
     std = Estadisticas(file, sheet)
-    std.checkFiguras(updXLS=True)
-
-def CheckDistribucionMacroExcel(file, sheet):
-    std = Estadisticas(file, sheet)
-    std.checkDistribucion(updXLS=True)
-
-def CheckSeguidosMacroExcel(file, sheet):
-    std = Estadisticas(file, sheet)
-    std.checkSeguidos(updXLS=True)
+    std.checkEstadisticas(updXLS=True)
 
 ########################################################################################
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    # CheckFigurasMacroExcel        ("Test.xlsm", "PRIMITIVA")
-    # CheckSeguidosMacroExcel       ("Test.xlsm", "PRIMITIVA")
-    # CheckDistribucionMacroExcel   ("Test.xlsm", "PRIMITIVA")
+    CheckEstadisticasMacroExcel("Test.xlsm", "PRIMITIVA")
+ 

@@ -26,5 +26,27 @@ def seguidos():
         nFiguras[i] = [x for x in nFiguras[i] if int(x) % 10 != terminacion]
     print (f"{numant=}. {nFiguras=}")
 
+
+def _checkSeguidos(lCombinacion):
+        lSeguidos = [0] * 7
+        seg = 0
+        for i in range(1, 6):
+            if lCombinacion[i] - lCombinacion[i-1] == 1:
+                seg += 1
+            else:
+                if seg > 0: lSeguidos[seg] += 1
+                seg = 0
+        else:
+            if seg > 0: lSeguidos[seg] += 1 
+
+        for i in range(6): 
+            if lSeguidos[i] > 0: lSeguidos[6] += 1  
+        
+        return lSeguidos
+
+    
+
+
 if __name__ == "__main__":
-    seguidos()
+    s = _checkSeguidos([16, 20, 31, 32, 35, 48])
+    print(s)

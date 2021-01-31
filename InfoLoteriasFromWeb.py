@@ -1,21 +1,9 @@
-'''
-Created on 06/11/2015
+#!/Volumes/Harddrive_HHD/apps/python/.virtualenvs/loterias/bin/python
 
-@author: jaleo
-'''
 import re
 import requests
 from bs4 import BeautifulSoup
-
-
-def _remover_acentos(txt):
-    return ''.join((c for c in unicodedata.normalize('NFD', txt) if unicodedata.category(c) != 'Mn'))
-
-
-def _publicarData(txt):
-    txt.encode('utf-8')
-    #txt = re.sub('\xa0', ''.encode('utf-8'), txt)
-    return txt
+import unicodedata
 
 
 def getGanadoraFromWeb(juego, year):
@@ -36,7 +24,7 @@ def getGanadoraFromWeb(juego, year):
     jornadaDate = _publicarData(jornadaDate)
 
     jornadaId = lit2.findAll('a')[0].get('href')
-    jornadaId = jornadaId[-4:]
+    jornadaId = jornadaId[-5:]
     jornadaId = _publicarData(jornadaId)
 
     fin = 6 if juego == "lottoses" else 5
@@ -67,6 +55,7 @@ def getPremiosFromWeb(juego, jornadaId):
         fin = 13
         all_rows  = soup.find("table", { "class" : "tbl no-responsive ee size80 tbl-result" })
     premios = list()
+    cat = [0] * fin
     for i in range(0, fin):
         cat = all_rows.findAll("td", {"data-title": "Cat:"})[i].getText()
         ace = all_rows.findAll("td", {"data-title": "Acertantes:"})[i].getText()
@@ -76,3 +65,13 @@ def getPremiosFromWeb(juego, jornadaId):
         t = (cat, ace, pre)
         premios.append(t)
     return premios
+
+
+def _remover_acentos(txt):
+    return ''.join((c for c in unicodedata.normalize('NFD', txt) if unicodedata.category(c) != 'Mn'))
+
+
+def _publicarData(txt):
+    txt.encode('utf-8')
+    #txt = re.sub('\xa0', ''.encode('utf-8'), txt)
+    return txt

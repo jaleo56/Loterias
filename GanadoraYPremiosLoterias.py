@@ -1,8 +1,4 @@
-'''
-Created on 06/11/2015
-
-@author: jaleo
-'''
+#!/Volumes/Harddrive_HHD/apps/python/.virtualenvs/loterias/bin/python
 
 import os
 import xlwings as xw
@@ -10,7 +6,9 @@ from InfoLoteriasFromWeb import getGanadoraFromWeb, getPremiosFromWeb
 from InfoLoteriasToExcel import setGanadoraToExcel, setPremiosToExcel
 
 
-def GanadoraYPremiosLoterias(juego):
+
+
+def GanadoraYPremiosLoterias(juego, updXLS):
     #path = '/Volumes/Harddrive_HHD/Desarrollo/python/Loterias/Loterias.xlsm'
     #if os.path.isfile(path):
     #    wb = xw.Book(path)
@@ -25,16 +23,28 @@ def GanadoraYPremiosLoterias(juego):
         juegoRes = "quinises"
         juegoPre = "quinies"
 
-    print ("passa por 1")
-
-    jornadaId, jornadaDate, numeros = getGanadoraFromWeb(juego=juegoRes, year="2020")
-    
-    setGanadoraToExcel(jornadaId, jornadaDate, numeros)
-
+    jornadaId, jornadaDate, numeros = getGanadoraFromWeb(juego=juegoRes, year="2021")
     premios = getPremiosFromWeb(juego=juegoPre, jornadaId=jornadaId)
     
-    setPremiosToExcel(premios)
+    if updXLS:
+        setGanadoraToExcel(jornadaId, jornadaDate, numeros)
+        setPremiosToExcel(premios)
+    else:
+        print(f"{jornadaId=}. {jornadaDate=}. {numeros=}")
+        print(f"{premios=}")
+        
 
-if __name__ == "__main__":
-    GanadoraYPremiosLoterias("PRIMITIVA")
+####################################################################################
+#  Macros excel                                                          
+####################################################################################
+def GanadoraYPremiosMacroExcel(juego, updXLS=True):
+    # os.system('/bin/bash --rcfile /Volumes/Harddrive_HHD/Desarrollo/python/Loterias/venv.sh')
+    GanadoraYPremiosLoterias(juego, updXLS)
+
+###################################################################################
+#  Test                                                                  
+###################################################################################
+if __name__ == "__main__":    
+    GanadoraYPremiosMacroExcel("PRIMITIVA", True)
     
+ 

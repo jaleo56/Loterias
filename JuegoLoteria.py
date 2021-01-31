@@ -46,10 +46,13 @@ class BomboNumeros:
         self.numerosCentrales   = self.numerosInitCentrales.copy()
 
 
-    def getNumeroAlAzar(self, s):
+    def getNumeroAlAzar(self, s, repetir=False):
         if len(self.numerosAleatorios) == 0:
             self.numerosAleatorios = [x for x in range(1, s.NUM_MAYOR  + 1)]
-        return self.numerosAleatorios.pop(randrange(len(self.numerosAleatorios)))
+        if repetir:
+            return self.numerosAleatorios[randrange(len(self.numerosAleatorios))]
+        else:
+            return self.numerosAleatorios.pop(randrange(len(self.numerosAleatorios)))
 
     def getNumeroTerminacion(self, s, idx=0, terminacion=None):
         if terminacion != None:
@@ -129,7 +132,6 @@ class BomboNumeros:
  
         n = self.nFiguras[nGrupo].pop(randrange(len(self.nFiguras[nGrupo])))
         self.nFigurasApuesta[nGrupo].remove(n)
-        # print (f"{nGrupo=}. {n=}")
         return n
         
 
@@ -157,7 +159,7 @@ class BomboNumeros:
         return next(intervalo)
         
 
-    # def _checkNAnteriores(self, s, nAnteriores=7):
+    # def _checkNAnteriores(self, s, fuera=True, nAnteriores=7):
     #     nApuestas = []
     #     lAciertos = []
     #     for i in range(len(self.ganadoras)-nAnteriores):
@@ -166,8 +168,11 @@ class BomboNumeros:
     #         for j in range(1,nAnteriores+1):
     #             l = self.ganadoras.iloc[i+j].tolist()
     #             nApuestas += l
-    #         cApuestas = [x for x in self.s.NUMEROS_LOTO if x not in nApuestas]
+    #
+    #         if fuera:
+    #            cApuestas = [x for x in self.s.NUMEROS_LOTO if x not in nApuestas]
     #         sApuestas = set(cApuestas)
+    #
     #         nAciertos = len(sGanadora.intersection(sApuestas))
     #         l2 = [nAciertos, len(sApuestas)]
     #         lAciertos.append(l2)
@@ -212,12 +217,12 @@ class Apuesta:
             n = 0
             for i in range(s.NUMS_COMBINACION ):
                 # # ---- NUMEROS DE N GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
-                n = self.bombo.getNumeroFiguras(s, idx=i, numant=n, ndecenas=0, ngrupos=8)
-                apuesta[i] = n 
+                # n = self.bombo.getNumeroFiguras(s, idx=i, numant=0, ndecenas=0, ngrupos=8)
+                # apuesta[i] = n 
 
 
                 # ---- NUMEROS AL AZAR
-                # apuesta[i] = self.bombo.getNumeroAlAzar(s)
+                apuesta[i] = self.bombo.getNumeroAlAzar(s, repetir=False)
 
                 # ---- NUMEROS TERMINACIONES DIFERENTES
                 # apuesta[i] = self.bombo.getNumeroTerminacion(s, idx=i, terminacion=t)
