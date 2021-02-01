@@ -44,9 +44,47 @@ def _checkSeguidos(lCombinacion):
         
         return lSeguidos
 
-    
+# from datetime import datetime
+# import locale
+
+# locale.setlocale(locale.LC_ALL, ("es_ES", "UTF-8"))
+
+from utils import getFecha
+
+def fecha():
+    jornadaDate='sa,\xa030\xa0ene\xa02021'
+    print(getFecha(jornadaDate))
+
+    # jornadaDate = jornadaDate[:2] + jornadaDate[2:]    
+    # jornadaDate = _publicarData(jornadaDate[4:])
+    # print(f"{jornadaDate=}")
+
+    # Convertimos un string con formato
+    # <día> del <mes> de <año> a las <hora>:<minutos> en datetime
+    # una_fecha = '20 del 04 de 2019 a las 12:00'
+    # fecha_dt = datetime.strptime(jornadaDate, '%d %b %Y')
+    # print(fecha_dt.date().strftime('%d/%m/%Y'))
+
+
+    # from datetime import datetime
+    # import locale
+
+    # locale.setlocale(locale.LC_ALL, ("es_ES", "UTF-8"))
+
+    # jornadaDate = jornadaDate[4:]
+    # jornadaDate = jornadaDate.replace('\xa0', ' ')
+    # fecha_dt = datetime.strptime(jornadaDate, '%d %b %Y')
+    # fecha = fecha_dt.date().strftime('%d/%m/%Y')
+
+
+# def _publicarData(txt):
+#     txt = txt.replace('\xa0', ' ')
+#     # txt.encode('utf-8')
+#     #txt = re.sub('\xa0', ''.encode('utf-8'), txt)
+#     return txt
 
 
 if __name__ == "__main__":
-    s = _checkSeguidos([16, 20, 31, 32, 35, 48])
-    print(s)
+    # s = _checkSeguidos([16, 20, 31, 32, 35, 48])
+    # print(s)
+    fecha()

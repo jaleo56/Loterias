@@ -4,6 +4,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 import unicodedata
+from utils import getFecha
 
 
 def getGanadoraFromWeb(juego, year):
@@ -22,6 +23,7 @@ def getGanadoraFromWeb(juego, year):
     jornadaDate = lit2.findAll("a")[0].getText()
     jornadaDate = jornadaDate[:2] + jornadaDate[2:]
     jornadaDate = _publicarData(jornadaDate)
+    fecha = getFecha(jornadaDate)
 
     jornadaId = lit2.findAll('a')[0].get('href')
     jornadaId = jornadaId[-5:]
@@ -39,7 +41,7 @@ def getGanadoraFromWeb(juego, year):
         res = lit2.findAll("td", {"class": "d ex hide-responsive"})[i].getText()
         numeros.append(res)
 
-    return jornadaId, jornadaDate, numeros
+    return jornadaId, jornadaDate, fecha, numeros
 
 
 def getPremiosFromWeb(juego, jornadaId):

@@ -6,8 +6,6 @@ from InfoLoteriasFromWeb import getGanadoraFromWeb, getPremiosFromWeb
 from InfoLoteriasToExcel import setGanadoraToExcel, setPremiosToExcel
 
 
-
-
 def GanadoraYPremiosLoterias(juego, updXLS):
     #path = '/Volumes/Harddrive_HHD/Desarrollo/python/Loterias/Loterias.xlsm'
     #if os.path.isfile(path):
@@ -23,11 +21,11 @@ def GanadoraYPremiosLoterias(juego, updXLS):
         juegoRes = "quinises"
         juegoPre = "quinies"
 
-    jornadaId, jornadaDate, numeros = getGanadoraFromWeb(juego=juegoRes, year="2021")
+    jornadaId, jornadaDate, fecha, numeros = getGanadoraFromWeb(juego=juegoRes, year="2021")
     premios = getPremiosFromWeb(juego=juegoPre, jornadaId=jornadaId)
     
     if updXLS:
-        setGanadoraToExcel(jornadaId, jornadaDate, numeros)
+        setGanadoraToExcel(jornadaId, jornadaDate, fecha, numeros)
         setPremiosToExcel(premios)
     else:
         print(f"{jornadaId=}. {jornadaDate=}. {numeros=}")
