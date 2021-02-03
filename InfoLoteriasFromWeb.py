@@ -35,13 +35,13 @@ def getGanadoraFromWeb(juego, year):
         res = lit2.findAll("td", {"class": "d hide-responsive"})[i].getText()
         numeros.append(res)
 
-    if fin == 5: numeros.append(0)
+    # if fin == 5: numeros.append(0)
 
     for i in range(0, 2):
         res = lit2.findAll("td", {"class": "d ex hide-responsive"})[i].getText()
         numeros.append(res)
 
-    return jornadaId, jornadaDate, fecha, numeros
+    return jornadaId, fecha, numeros
 
 
 def getPremiosFromWeb(juego, jornadaId):

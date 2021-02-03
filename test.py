@@ -83,8 +83,17 @@ def fecha():
 #     #txt = re.sub('\xa0', ''.encode('utf-8'), txt)
 #     return txt
 
+def sw(sheet, loto):
+    apuestas_cell = {
+        "DASHBOARD_EUROMILLONES"    : "Q10",
+        "DASHBOARD_PRIMITIVA"       : "H10",
+        "PRIMITIVA_PRIMITIVA"       : "K3",
+        "EUROMILLONES_EUROMILLONES" : "K3" 
+    }
+    print(apuestas_cell.get(sheet + "_" + loto, "E001: Invalid sheet or loto"))
 
 if __name__ == "__main__":
     # s = _checkSeguidos([16, 20, 31, 32, 35, 48])
     # print(s)
-    fecha()
+    # fecha()
+    sw("PRIMITIVA", "PRIMITIVAS")

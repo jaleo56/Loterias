@@ -1,5 +1,6 @@
 from array import *
 
+
 class Settings:
     RNG_GANADORAS          = ["B2", "I"]
     RNG_APUESTAS           = ["K2", "R"]
@@ -8,6 +9,13 @@ class Settings:
     CEL_RESULTADOS         = "AP3"
     CEL_RESUMEN            = "AP3"
     CEL_APUESTAS           = "K3"
+
+    apuestas_cell = {
+        "DASHBOARD_EUROMILLONES"    : "Q10",
+        "DASHBOARD_PRIMITIVA"       : "H10",
+        "PRIMITIVA_PRIMITIVA"       : "K3",
+        "EUROMILLONES_EUROMILLONES" : "K3" 
+    }
 
     # ----- GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
     GRUPOS_NUMS = [ 
@@ -25,11 +33,13 @@ class Settings:
     NUMS_INTERVALOS= [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 
 
-    def __init__(self, file, sheet):
+    def __init__(self, file, sheet, loto):
         self.FILE_NAME               = file
         self.SHEET                   = sheet
-        self.LOTO                    = sheet
+        self.LOTO                    = loto
 
+        self.CEL_APUESTAS = self.apuestas_cell.get(sheet + "_" + loto, "E001: Invalid sheet or loto")
+ 
         if self.LOTO == "EUROMILLONES":
             self.NUM_MAYOR           = 50
             self.NUMS_COMBINACION    = 5

@@ -7,8 +7,8 @@ class Escrutinio:
     lResumen = []
     resultadosRange = []
 
-    def __init__(self, file, sheet):
-        self.s = Settings(file, sheet)
+    def __init__(self, file, sheet, loto):
+        self.s = Settings(file, sheet, loto)
 
     ########################################################################################
     # API
@@ -177,16 +177,16 @@ class Escrutinio:
 ########################################################################################
 # MACROS EXCEL
 #---------------------------------------------------------------------------------------
-def AciertosMacroExcel(file, sheet):
-    std = Escrutinio(file, sheet)
+def AciertosMacroExcel(file, sheet, loto):
+    std = Escrutinio(file, sheet, loto)
     std.checkAciertos(updXLS=True)
 
-def CheckGanadorasMacroExcel(file, sheet):
-    std = Escrutinio(file, sheet)
+def CheckGanadorasMacroExcel(file, sheet, loto):
+    std = Escrutinio(file, sheet, loto)
     std.checkAllGanadoras(updXLS=True, resumir=True)
 
-def CheckNAnterioresMacroExcel (file, sheet, updXLS=True):
-    esc = Escrutinio(file, sheet)
+def CheckNAnterioresMacroExcel (file, sheet, loto, updXLS=True):
+    esc = Escrutinio(file, sheet, loto)
     esc.checkNAnteriores(updXLS, nAnteriores=10, fuera=False)
 
 ########################################################################################
@@ -195,4 +195,4 @@ def CheckNAnterioresMacroExcel (file, sheet, updXLS=True):
 if __name__ == "__main__":
     # AciertosMacroExcel            ("Test.xlsm", "PRIMITIVA")
     # CheckGanadorasMacroExcel      ("Test.xlsm", "PRIMITIVA")
-    CheckNAnterioresMacroExcel    ("Test.xlsm", "PRIMITIVA")
+    CheckNAnterioresMacroExcel    ("Test.xlsm", "PRIMITIVA", loto)

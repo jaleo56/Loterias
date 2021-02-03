@@ -256,7 +256,8 @@ class Apuesta:
                 if n > 0: 
                     fDecenas += str(n) if fDecenas == "" else str("|") + str(n)
             
-            if fDecenas in ("3|2|1", "2|2|1|1", "3|1|1|1"):
+            # if fDecenas in ("3|2|1", "2|2|1|1", "3|1|1|1"):
+            if fDecenas in ("2|2|1|1"):
                 if len(apuesta) == len(set(apuesta)): 
                     found = True
                 else: apuestas_erroneas += 1
@@ -288,8 +289,8 @@ class Apuesta:
 ###################################################################################
 
 class Loteria: 
-    def __init__(self, file, sheet): 
-        self.s = Settings(file, sheet)
+    def __init__(self, file, sheet, loto): 
+        self.s = Settings(file, sheet, loto)
    
     def jugarLoteria(self, nApuestas, updXLS=False):
         apuestas = self._getApuestas(int(nApuestas))
@@ -312,8 +313,8 @@ class Loteria:
 ####################################################################################
 #  Macros excel                                                          
 ####################################################################################
-def JugarMacroExcel(file, sheet, nApuestas):
-    juego = Loteria(file, sheet)
+def JugarMacroExcel(file, sheet, loto, nApuestas):
+    juego = Loteria(file, sheet, loto)
     juego.jugarLoteria(nApuestas, updXLS=True)
 
 def CheckNAnterioresMacroExcel(file, sheet):
@@ -324,7 +325,7 @@ def CheckNAnterioresMacroExcel(file, sheet):
 #  Test                                                                  
 ###################################################################################
 if __name__ == "__main__":
-    JugarMacroExcel("Test.xlsm", "PRIMITIVA", 8)
-    # CheckNAnterioresMacroExcel    ("Loterias3.xlsm", "PRIMITIVA")
+    JugarMacroExcel("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", 8)
+    # CheckNAnterioresMacroExcel    ("Loterias.xlsm", "PRIMITIVA")
     
 

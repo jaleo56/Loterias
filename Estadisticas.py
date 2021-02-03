@@ -7,8 +7,8 @@ class Estadisticas:
     lResumen = []
     resultadosRange = []
 
-    def __init__(self, file, sheet):
-        self.s = Settings(file, sheet)
+    def __init__(self, file, sheet, loto):
+        self.s = Settings(file, sheet, loto)
 
     ########################################################################################
     # API
@@ -158,13 +158,13 @@ class Estadisticas:
 ########################################################################################
 # MACROS EXCEL
 #---------------------------------------------------------------------------------------
-def CheckEstadisticasMacroExcel(file, sheet):
-    std = Estadisticas(file, sheet)
+def CheckEstadisticasMacroExcel(file, sheet, loto):
+    std = Estadisticas(file, sheet, loto)
     std.checkEstadisticas(updXLS=True)
 
 ########################################################################################
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    CheckEstadisticasMacroExcel("Loterias.xlsm", "PRIMITIVA")
+    CheckEstadisticasMacroExcel("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA")
  

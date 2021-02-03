@@ -21,14 +21,14 @@ def GanadoraYPremiosLoterias(juego, updXLS):
         juegoRes = "quinises"
         juegoPre = "quinies"
 
-    jornadaId, jornadaDate, fecha, numeros = getGanadoraFromWeb(juego=juegoRes, year="2021")
+    jornadaId, fecha, numeros = getGanadoraFromWeb(juego=juegoRes, year="2021")
     premios = getPremiosFromWeb(juego=juegoPre, jornadaId=jornadaId)
     
     if updXLS:
-        setGanadoraToExcel(jornadaId, jornadaDate, fecha, numeros)
-        setPremiosToExcel(premios)
+        setGanadoraToExcel(juego, fecha, numeros)
+        setPremiosToExcel(juego, fecha, jornadaId, premios)
     else:
-        print(f"{jornadaId=}. {jornadaDate=}. {numeros=}")
+        print(f"{jornadaId=}. {numeros=}")
         print(f"{premios=}")
         
 
