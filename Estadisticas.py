@@ -1,6 +1,7 @@
-import pandas as pd
+import pandas  as     pd
 from HojaExcel import HojaExcel
-from settings import Settings
+from settings  import Settings
+from utils     import getDecenas
 
 class Estadisticas:
     lAciertos = []
@@ -14,9 +15,12 @@ class Estadisticas:
     # API
     #---------------------------------------------------------------------------------------
 
-    def checkEstadisticas(self, updXLS=False):
-        xls = self._getInfoFromExcel(tipo="APUESTAS")
-        self.lEstadisticas = self._checkEstadisticas(self.apuestas)
+    def checkEstadisticas(self, tipo, updXLS=False):
+        xls = self._getInfoFromExcel(tipo=tipo)
+        if tipo == "APUESTAS":
+            self.lEstadisticas = self._checkEstadisticas(self.apuestas)
+        else:
+            self.lEstadisticas = self._checkEstadisticas(self.ganadoras)
         if updXLS:
             xls.publicarRango(self.s.COL_FIGURAS, self.lEstadisticas)
         else:
@@ -68,18 +72,14 @@ class Estadisticas:
             lDecenas[d]       += 1
             lIntervalos[v]    += 1 
 
+        # Obtener total terminaciones
         for n in range(10):
             if lTerminaciones[n] > 0: lTerminaciones[10] += 1
 
-        fDecenas    = ""
-        cntDecenas  = 0
-        lDecenas.sort(reverse=True)
-        for n in range(6):
-            if lDecenas[n] > 0: 
-                cntDecenas += 1
-                fDecenas += str(lDecenas[n]) if fDecenas == "" else str("|") + str(lDecenas[n])
-        print (f"{fDecenas=}")
-
+        # Obtener decenas
+        fDecenas = getDecenas(sCombinacion)     
+        
+        # Obtener total intervalos
         for n in range(10):
             if lIntervalos[n] > 0: lIntervalos[10] += 1
 
@@ -158,13 +158,13 @@ class Estadisticas:
 ########################################################################################
 # MACROS EXCEL
 #---------------------------------------------------------------------------------------
-def CheckEstadisticasMacroExcel(file, sheet, loto):
+def CheckEstadisticasMacroExcel(file, sheet, loto, tipo="APUESTAS"):
     std = Estadisticas(file, sheet, loto)
-    std.checkEstadisticas(updXLS=True)
+    std.checkEstadisticas(tipo=tipo, updXLS=True)
 
 ########################################################################################
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    CheckEstadisticasMacroExcel("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA")
+    CheckEstadisticasMacroExcel("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", "APUESTAS")
  

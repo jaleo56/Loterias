@@ -54,6 +54,7 @@ class Escrutinio:
     def _checkAciertos(self, ganadoras, snApuestas):
         lAciertos =[]
         nNumeros = len(snApuestas)
+        print(f"{snApuestas=}")
         for x, ganadora in ganadoras.iterrows():
             if x == 0: continue
             sGanadora = set(ganadora)
@@ -136,11 +137,13 @@ class Escrutinio:
             ganadorasRange  = xls.getDataFrame(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_GANADORAS)  
             self.ganadoras  = pd.DataFrame(ganadorasRange, columns=self.s.COLS_GANADORAS)
             self.eGanadoras = pd.DataFrame(ganadorasRange, columns=self.s.COLS_EGANADORAS )
-
+            print(f"{self.ganadoras=}")
+        
         if tipo in ("APUESTAS", "ALL"):
             apuestasRange   = xls.getDataFrame(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_APUESTAS)
             self.apuestas   = pd.DataFrame(apuestasRange, columns=self.s.COLS_APUESTAS)
             self.eApuestas  = pd.DataFrame(apuestasRange, columns=self.s.COLS_EAPUESTAS)
+            print(f"{self.apuestas=}")
 
         if tipo in ("ALL"):
             self.resultadosRange = xls.getRange(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_RESUMENES)
@@ -149,28 +152,24 @@ class Escrutinio:
 
 
     def _getNumsApuestas(self, apuestas):
-        nApuestas =[]
-        for y, apuesta in apuestas.iterrows():
-            if y == 0: continue
-            l = [*apuesta]
-            nApuestas = nApuestas + l
-        return set(nApuestas)
-
+        alist = apuestas.values.tolist()
+        flat_list = [item for sublist in alist for item in sublist]
+        return set(flat_list)
+  
 
     def _listaAciertos(self, cntRow):
         if self.s.LOTO == "PRIMITIVA":
             return ([
-                cntRow[30] + cntRow[31], cntRow[40], cntRow[41],
+                (cntRow[30] + cntRow[31]), cntRow[40], cntRow[41],
                 cntRow[50], cntRow[51], cntRow[60]
             ])
         else:
             return ([
-                cntRow[2], cntRow[12], 
+                cntRow[12], 
                 cntRow[20], cntRow[21], cntRow[22],
                 cntRow[30], cntRow[31], cntRow[32],
                 cntRow[40], cntRow[41], cntRow[42],
-                cntRow[50], cntRow[51], cntRow[52],
-                cntRow[60]
+                cntRow[50], cntRow[51], cntRow[52]
             ])
 
 
@@ -193,6 +192,6 @@ def CheckNAnterioresMacroExcel (file, sheet, loto, updXLS=True):
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    # AciertosMacroExcel            ("Test.xlsm", "PRIMITIVA")
-    # CheckGanadorasMacroExcel      ("Test.xlsm", "PRIMITIVA")
-    CheckNAnterioresMacroExcel    ("Test.xlsm", "PRIMITIVA", loto)
+    # AciertosMacroExcel            ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES")
+    CheckGanadorasMacroExcel      ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES")
+    # CheckNAnterioresMacroExcel    ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES")

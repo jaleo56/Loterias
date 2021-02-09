@@ -92,8 +92,101 @@ def sw(sheet, loto):
     }
     print(apuestas_cell.get(sheet + "_" + loto, "E001: Invalid sheet or loto"))
 
+
+while not found:
+            apuesta = [0] * s.NUMS_COMBINACION
+            n = 0
+            for i in range(s.NUMS_COMBINACION ):
+                # # ---- NUMEROS DE N GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
+                # n = self.bombo.getNumeroFiguras(s, idx=i, numant=0, ndecenas=0, ngrupos=8)
+                # apuesta[i] = n 
+
+
+                # ---- NUMEROS AL AZAR
+                # apuesta[i] = self.bombo.getNumeroAlAzar(s, repetir=False)
+
+                # ---- NUMEROS TERMINACIONES DIFERENTES
+                apuesta[i] = self.bombo.getNumeroTerminacion(s, idx=i, terminacion=t)
+                t = apuesta[i] % 10
+
+                # ---- ALTERAR NUMEROS
+                # if i == 0:
+                #     apuesta[i] = self.bombo.getNumeroAlAzar()
+                #
+                # ---- ...(1) ALTOS Y BAJOS
+                # elif ultimo < 26:                            
+                #     apuesta[i] = self.bombo.getNumeroAlto()
+                # else:
+                #     apuesta[i] = self.bombo.getNumeroBajo()
+                #
+                # ---- ...(2) PERIFERIA Y CENTRALES
+                # elif: ultimo in self.bombo.numerosInitPeriferia:
+                #   apuesta[i] = self.bombo.getNumeroBajo()
+                #
+                # ultimo = apuesta[i]
+            
+            # Control de decenas
+            lDecenas = [0] * 6
+            fDecenas = ""
+            for n in apuesta:
+                d = int(n/10)
+                lDecenas[d] += 1
+
+            lDecenas.sort(reverse=True)
+            for n in lDecenas:
+                if n > 0: 
+                    fDecenas += str(n) if fDecenas == "" else str("|") + str(n)
+            
+            # if fDecenas in ("3|2|1", "2|2|1|1", "3|1|1|1"):
+            if fDecenas in ("2|2|1|1"):
+                if len(apuesta) == len(set(apuesta)): 
+                    found = True
+                else: apuestas_erroneas += 1
+            else: apuestas_erroneas += 1
+
+
+
+
 if __name__ == "__main__":
     # s = _checkSeguidos([16, 20, 31, 32, 35, 48])
     # print(s)
     # fecha()
     sw("PRIMITIVA", "PRIMITIVAS")
+
+
+
+
+    # def _checkNAnteriores(self, s, fuera=True, nAnteriores=7):
+    #     nApuestas = []
+    #     lAciertos = []
+    #     for i in range(len(self.ganadoras)-nAnteriores):
+    #         sGanadora = set(self.ganadoras.iloc[i])
+    #         nApuestas.clear()    
+    #         for j in range(1,nAnteriores+1):
+    #             l = self.ganadoras.iloc[i+j].tolist()
+    #             nApuestas += l
+    #
+    #         if fuera:
+    #            cApuestas = [x for x in self.s.NUMEROS_LOTO if x not in nApuestas]
+    #         sApuestas = set(cApuestas)
+    #
+    #         nAciertos = len(sGanadora.intersection(sApuestas))
+    #         l2 = [nAciertos, len(sApuestas)]
+    #         lAciertos.append(l2)
+    #     return lAciertos 
+    
+
+    # Get numeros y estrellas APUESTAS de las 10 ganadoras anteriores    
+    # def _getApuestas(self, nganadora=None):
+    #     if nganadora == None:
+    #         return self.apuestas, self.eApuestas
+    #     else:
+    #         apuestas  = []
+    #         estrellas = []
+    #         for y in range(nganadora+1, nganadora+11):
+    #             apuestas.append(self.ganadoras.iloc[y])
+    #             estrellas.append(self.eGanadoras.iloc[y])
+    #         dfApuestas = pd.DataFrame(apuestas)
+    #         dfEstrellas = pd.DataFrame(estrellas)
+    #         return dfApuestas, dfEstrellas
+

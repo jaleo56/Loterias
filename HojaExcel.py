@@ -1,4 +1,5 @@
 import pandas as pd
+# import numpy  as np
 import xlwings as xw
 from settings import Settings
 
@@ -9,6 +10,7 @@ class HojaExcel:
         df=pd.DataFrame(rango)
         df.columns = df.iloc[0]
         df = df[1:]
+        df = df.astype('int')
         # Data=Data.dropna(how='all',axis=1)
         # Data=Data.dropna(how='all',axis=0)
         return df
@@ -19,18 +21,26 @@ class HojaExcel:
         rango=wb.sheets[sheet].range(f"{rangoin[0]}:{rangoin[1]}{last_row}").value
         return rango
 
-    def publicarRango(self, rangeInit, lista):
-        xw.Range(rangeInit).value = lista
+    def publicarRango(self, rango, lista):
+        xw.Range(rango).value = lista
+
+
+    def publicarFecha(self, rango, fecha):
+        if fecha != None:
+           xw.Range(rango).value = fecha
+
 
     def publicarColumna(self, rango, lista):
-        lRow = len(lista)
+        # lRow = len(lista)
         # xw.Range(f"{rango}:{rango[0]}{lRow}").clear_contents()
         xw.Range(rango).options(transpose=True).value = lista
 
 
 if __name__ == "__main__":
     xls = HojaExcel()
-    s = Settings("Loterias3.xlsm", "EUROMILLONES")
+    s = Settings("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA")
     apuestasRange = xls.getDataFrame(s.FILE_NAME, s.SHEET, s.RNG_APUESTAS)
     apuestas  = pd.DataFrame(apuestasRange, columns=s.COLS_APUESTAS)
     estrellas = pd.DataFrame(apuestasRange, columns=s.COLS_EAPUESTAS)
+    print (f"{apuestasRange=}")
+    print (f"{apuestasRange.dtypes=}")

@@ -2,12 +2,8 @@ from array import *
 
 
 class Settings:
-    RNG_GANADORAS          = ["B2", "I"]
-    RNG_APUESTAS           = ["K2", "R"]
     
-    CEL_ACIERTOS           = "T3"
-    CEL_RESULTADOS         = "AP3"
-    CEL_RESUMEN            = "AP3"
+  
     CEL_APUESTAS           = "K3"
 
     apuestas_cell = {
@@ -33,6 +29,7 @@ class Settings:
     NUMS_INTERVALOS= [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 
 
+
     def __init__(self, file, sheet, loto):
         self.FILE_NAME               = file
         self.SHEET                   = sheet
@@ -41,20 +38,31 @@ class Settings:
         self.CEL_APUESTAS = self.apuestas_cell.get(sheet + "_" + loto, "E001: Invalid sheet or loto")
  
         if self.LOTO == "EUROMILLONES":
+            self.CEL_RESULTADOS      = "AN3"
+            self.CEL_RESUMEN         = "AN3"
+            self.RNG_GANADORAS       = ["B2", "H"]
+            self.RNG_APUESTAS        = ["J2", "P"]
             self.NUM_MAYOR           = 50
             self.NUMS_COMBINACION    = 5
             self.NUMS_ESTRELLAS      = 12
             self.COLS_GANADORAS      = ['N1', 'N2', 'N3', 'N4', 'N5']
-            self.COLS_EGANADORAS     = ['L1', 'L2']
+            self.COLS_EGANADORAS     = ['E1', 'E2']
             self.COLS_APUESTAS       = ['A1', 'A2', 'A3', 'A4', 'A5']
             self.COLS_EAPUESTAS      = ['E1', 'E2']
-            self.RNG_RESUMENES       = ["AM2", "AZ"]
+            self.RNG_RESUMENES       = ["AN2", "AZ"]
             self.COL_FIGURAS         = "BA2"
             self.COL_DISTRIBUCION    = "AY2"
+            self.CEL_ACIERTOS        = "R3"
+            self.CEL_FECHA           = "U8"
             self.DECENAS             = [0, 1, 2, 3, 4, 5]
+            self.LIST_DECENAS        = ["2|1|1|1", "2|2|1", "3|1|1"]
             
-
         elif self.LOTO == "PRIMITIVA":
+            self.CEL_RESULTADOS      = "AP3"
+            self.CEL_RESUMEN         = "AP3"
+            self.RNG_GANADORAS       = ["B2", "H"]
+            self.RNG_GANADORAS       = ["B2", "I"]
+            self.RNG_APUESTAS        = ["K2", "R"]
             self.NUM_MAYOR           = 49
             self.NUMS_COMBINACION    = 6
             self.NUMS_ESTRELLAS      = 0
@@ -64,12 +72,15 @@ class Settings:
             self.COLS_EAPUESTAS      = ['C']
             self.RNG_RESUMENES       = ["AP3", "AU"]
             self.COL_FIGURAS         = "AV3"
+            self.CEL_FECHA           = "M8"
             self.COL_DISTRIBUCION    = "CC3"
+            self.CEL_ACIERTOS        = "T3"
             self.NUMS_PERIFERIA.remove(50)
             self.GRUPOS_NUMS[6].remove(50)
             self.NUMS_INTERVALOS.remove(50)
             self.DECENAS             = [0, 1, 2, 3, 4]
             self.COL_SEGUIDOS        = "BV3"
+            self.LIST_DECENAS        = ["2|2|1|1", "3|1|1|1", "3|2|1"]
 
         elif self.LOTO == "ONCE":
             self.NUM_MAYOR           = 50
@@ -80,9 +91,13 @@ class Settings:
 
         self.NUMEROS_LOTO = [x for x in range(1, self.NUM_MAYOR  + 1)]
 
+        eval(loto())
+
+    def PRIMITIVA():
+        print("passa 1")
 
 if __name__ == "__main__":
-    s = Settings("Loterias3.xlsm", "PRIMITIVA")
+    s = Settings("Loterias3.xlsm", "PRIMITIVA", "PRIMITIVA")
     print (s.GRUPOS_NUMS)   
 
 

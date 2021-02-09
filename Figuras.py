@@ -29,7 +29,7 @@ class Figuras:
 
 
 	def _getBases(self, s, numeros):
-		self.numerosPares      = set (x for x in numeros if x % 2 == 0)
+		self.numerosPares      = set([x for x in numeros if x % 2 == 0])
 		self.numerosImpares    = set([x for x in numeros if x % 2 != 0])
 		self.numerosBajos      = set([x for x in numeros if x <= 25])
 		self.numerosAltos      = set([x for x in numeros if x >  25])
