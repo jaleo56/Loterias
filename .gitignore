@@ -3,6 +3,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,macos,microsoftoffice
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python,macos,microsoftoffice
 
+.gitignore
+
 ### macOS ###
 # General
 .DS_Store
