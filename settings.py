@@ -3,9 +3,6 @@ from array import *
 
 class Settings:
     
-  
-    CEL_APUESTAS           = "K3"
-
     apuestas_cell = {
         "DASHBOARD_EUROMILLONES"    : "Q10",
         "DASHBOARD_PRIMITIVA"       : "H10",
@@ -29,7 +26,6 @@ class Settings:
     NUMS_INTERVALOS= [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 
 
-
     def __init__(self, file, sheet, loto):
         self.FILE_NAME               = file
         self.SHEET                   = sheet
@@ -50,7 +46,7 @@ class Settings:
             self.COLS_APUESTAS       = ['A1', 'A2', 'A3', 'A4', 'A5']
             self.COLS_EAPUESTAS      = ['E1', 'E2']
             self.RNG_RESUMENES       = ["AN2", "AZ"]
-            self.COL_FIGURAS         = "BA2"
+            self.COL_FIGURAS         = "BA3"
             self.COL_DISTRIBUCION    = "AY2"
             self.CEL_ACIERTOS        = "R3"
             self.CEL_FECHA           = "U8"
@@ -82,19 +78,11 @@ class Settings:
             self.COL_SEGUIDOS        = "BV3"
             self.LIST_DECENAS        = ["2|2|1|1", "3|1|1|1", "3|2|1"]
 
-        elif self.LOTO == "ONCE":
-            self.NUM_MAYOR           = 50
-            self.NUMS_COMBINACION    = 5
-            self.NUMS_ESTRELLAS      = 10
         else:
             raise ValueError("El tipo de loteria (nombre hoja) no está permitido.")
 
         self.NUMEROS_LOTO = [x for x in range(1, self.NUM_MAYOR  + 1)]
 
-        eval(loto())
-
-    def PRIMITIVA():
-        print("passa 1")
 
 if __name__ == "__main__":
     s = Settings("Loterias3.xlsm", "PRIMITIVA", "PRIMITIVA")

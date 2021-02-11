@@ -93,7 +93,7 @@ class Estadisticas:
     def _checkSeguidos(self, lCombinacion):
         lSeguidos = [0] * 7
         seg = 0
-        for i in range(1, 6):
+        for i in range(1, self.s.NUMS_COMBINACION):
             if lCombinacion[i] - lCombinacion[i-1] == 1:
                 seg += 1
             else:
@@ -102,7 +102,7 @@ class Estadisticas:
         else:
             if seg > 0: lSeguidos[seg] += 1 
 
-        for i in range(6): 
+        for i in range(self.s.NUMS_COMBINACION): 
             if lSeguidos[i] > 0: lSeguidos[6] += 1  
         
         return lSeguidos

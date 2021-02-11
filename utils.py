@@ -19,7 +19,7 @@ def getDecenas(apuesta):
     lDecenas = [0] * 6
     fDecenas = ""
     for n in apuesta:
-        d = int(n/10)
+        d = int(n/10)-1 if n%10 == 0 else int(n/10)
         lDecenas[d] += 1
     lDecenas.sort(reverse=True)
     for n in lDecenas:

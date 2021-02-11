@@ -204,11 +204,11 @@ class Apuesta:
         estrella = [0] * 2
         apuestas_erroneas = 0
 
-        while not (found:=False):
+        while True:
             # CREAR APUESTA
             apuesta = [0] * s.NUMS_COMBINACION
             numant = 0
-            for i in range(s.NUMS_COMBINACION ):
+            for i in range(s.NUMS_COMBINACION):
                 apuesta[i] = fSelect(s, numant, ndecenas, ngrupos, repetir)
                 numant = apuesta[i] 
             
