@@ -29,10 +29,7 @@ class BomboNumeros:
         self.numerosIntervalos      = s.NUMS_INTERVALOS 
         self.numerosEstrellas       = []
 
-        self.gruposAJugar           = []
-        self.idxg                   = []
-        self.nFiguras               = [0] * 8 * 8
-        self.numsFiguras            = []
+        self.nsGruposJuego          = []
 
         # self._inicioArraysNumeros(s)
 
@@ -98,20 +95,15 @@ class BomboNumeros:
             self.numerosCentrales = self.numerosInitCentrales.copy()
         return self.numerosCentrales.pop(randrange(len(self.numerosCentrales)))
 
-
-    # ----- GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
     def getNumeroFiguras(self, s, numant=0, ndecenas=0, ngrupos=0):
 
-        # ---Seleccionar n grupos al azar (primera vez) 
+        # ---Crear figuras y seleccionar n grupos (primera vez) 
         if len(self.gruposAJugar) == 0: 
-            self.nFigurasJuego, self.gruposAJugar = self._createFiguras(s, ndecenas, ngrupos)     
-            self.nFigurasApuesta = copy.deepcopy(self.nFigurasJuego)
-            self.idxg            = copy.deepcopy(self.gruposAJugar)
-            self.ng              = min(ngrupos, len(self.gruposAJugar))    
-
-        # Borrar terminaciones y seguidos numero anterior
+            self._createFiguras(s, ndecenas, ngrupos)     
+ 
+        # Borrar terminaciones: anterior y siquiente numero anterior
         if numant == 0:
-            self.nFiguras = copy.deepcopy(self.nFigurasApuesta)        
+            self.nFiguras = copy.deepcopy(self.figurasApuesta)        
         else:
             t = numant % 10
             for i in range(len(self.nFiguras)):
@@ -119,41 +111,96 @@ class BomboNumeros:
                 self.nFiguras[i] = [x for x in self.nFiguras[i] if int(x) != numant+1]
                 self.nFiguras[i] = [x for x in self.nFiguras[i] if int(x) != numant-1]
         
-        # --- Seleccionar uno de los n grupos (sin repeticion) 
-        if len(self.idxg) == 0:
-            self.idxg = copy.deepcopy(self.gruposAJugar)
-        nGrupo = self.idxg.pop(randrange(len(self.idxg)))
-        # nGrupo = idx % self.ng
+        # --- Seleccionar grupo (sin repeticion) 
+        if len(self.gruposApuesta) == 0:
+            self.gruposApuesta = copy.deepcopy(self.gruposJuego)
+        nGrupo = self.gruposApuesta.pop(randrange(len(self.gruposApuesta)))
 
-        # --- Seleccionar numero del grupo seleccionado (sin repeticion: pop)
+        # --- Seleccionar numero del grupo seleccionado (sin repeticion)
         if len(self.nFiguras[nGrupo]) == 0:
-            if len(self.nFigurasApuesta[nGrupo]) == 0:
-                self.nFigurasApuesta[nGrupo] = copy.deepcopy(self.nFigurasJuego[nGrupo])
-            self.nFiguras[nGrupo] = copy.deepcopy(self.nFigurasApuesta[nGrupo])
+            if len(self.figurasApuesta[nGrupo]) == 0:
+                self.figurasApuesta[nGrupo] = copy.deepcopy(self.figurasJuego[nGrupo])
+            self.nFiguras[nGrupo] = copy.deepcopy(self.figurasApuesta[nGrupo])
  
         n = self.nFiguras[nGrupo].pop(randrange(len(self.nFiguras[nGrupo])))
-        self.nFigurasApuesta[nGrupo].remove(n)
+        # --- Eliminar numero seleccionado de numeros apuesta
+        self.figurasApuesta[nGrupo].remove(n)
         return n
         
+   
+    def getNumeroNGrupos(self, s, ngrupos, numeros):
+        # ---Crear n grupos de n numeros (primera vez) 
+        if len(self.nsGruposJuego) == 0:
+            self.cntNumeros      = 0
+            self.nsGruposJuego   = self._createNGrupos(s, ngrupos, numeros)   
+            self.nsGruposApuesta = copy.deepcopy(self.nsGruposJuego)
 
+        nGrupo = int(self.cntNumeros / numeros)
+        self.cntNumeros += 1
+        
+        # --- Seleccionar numero del grupo seleccionado (sin repeticion)
+        if len(self.nsGruposApuesta[nGrupo]) == 0:
+            self.nsGruposApuesta[nGrupo] = copy.deepcopy(self.nsGruposJuego[nGrupo])
+ 
+        n = self.nsGruposApuesta[nGrupo].pop(randrange(len(self.nsGruposApuesta[nGrupo])))
+
+        return n 
+    
+    
     def _createFiguras(self, s, ndecenas=0, ngrupos=0):
-        gruposAJugar = []
-        numsFiguras  = []
-
+        self.figurasJuego   = []
+        self.figurasApuesta = [0] * 8 * 8
+        self.gruposJuego    = []
+        self.gruposApuesta  = []
+        
         # --- Obtener numeros de figuras
         f = Figuras()
-        numsFiguras = f.getFiguras(s, ndecenas=ndecenas)
+        self.figurasJuego = f.getFiguras(s, ndecenas=ndecenas)
 
         # --- Seleccionar n grupos al azar
-        gruSel = min(ngrupos, len(numsFiguras))    
-        g = [x for x in range(len(numsFiguras))]
+        gruSel = min(ngrupos, len(self.figurasJuego))    
+        g = [x for x in range(len(self.figurasJuego))]
         for x in range(gruSel):
-            gruposAJugar.append(g.pop(randrange(len(g)))) 
+            self.gruposJuego.append(g.pop(randrange(len(g)))) 
 
-        print (f"{numsFiguras=}")
-        print (f"{gruposAJugar=}")
-        return numsFiguras, gruposAJugar 
+        self.figurasApuesta = copy.deepcopy(self.figurasJuego)
+        self.gruposApuesta  = copy.deepcopy(self.gruposJuego)
 
+
+    def _createNGrupos(self, s, ngrupos, numeros):
+        nsGruposJuego   = []
+        lGrupo          = [] 
+        grupos_erroneos = 0
+        iterGrupos      = 0
+        cntCopys = 0 
+        
+        f = Figuras()
+        figurasJuego    = f.getFiguras(s)
+        nsFiguras       = copy.deepcopy(figurasJuego)
+        
+        for ng in range(ngrupos):
+            while True:
+                lGrupo = []
+                for nn in range(numeros):
+                    grupo = iterGrupos % len(figurasJuego)
+                    if len(nsFiguras[grupo]) == 0:
+                        nsFiguras[grupo] = copy.deepcopy(figurasJuego[grupo])
+                        cntCopys += 1
+                    num = nsFiguras[grupo].pop(randrange(len(nsFiguras[grupo])))
+                    lGrupo.append(num)
+                    iterGrupos += 1
+
+                if len(lGrupo) == len(set(lGrupo)):
+                    lGrupo.sort()
+                    nsGruposJuego.append(lGrupo)
+                    break
+                grupos_erroneos += 1
+            
+            print (f"{grupos_erroneos=}. {cntCopys=}")
+
+        print(f'{nsGruposJuego=}')
+
+        return nsGruposJuego
 
     def getIntervaloFromNumero(self, s, numero):
         intervalo = (i for i, e in enumerate(self.numerosIntervalos) if e >= numero)
@@ -167,6 +214,46 @@ class BomboNumeros:
 class Apuesta:
     def __init__(self, s):
         self.bombo = BomboNumeros(s)
+
+
+    def obtenerApuesta(self, s, fSelect, ndecenas=0, ngrupos=8, repetir=False):
+        apuesta  = [0] * s.NUMS_COMBINACION 
+        estrella = [0] * 2
+        apuestas_erroneas = 0
+
+        while True:
+            # CREAR APUESTA 
+            apuesta = [0] * s.NUMS_COMBINACION
+            numant = 0
+            for i in range(s.NUMS_COMBINACION):
+                apuesta[i] = fSelect(s, numant, ndecenas, ngrupos, repetir)
+                numant = apuesta[i] 
+            
+            # FILTRO DECENAS APUESTA
+            fDecenas = getDecenas(apuesta)
+
+            # FILTRAR APUESTA: numeros y decenas
+            if len(apuesta) == len(set(apuesta)):
+                # if fDecenas in s.LIST_DECENAS: 
+                break
+            
+            apuestas_erroneas += 1
+
+        print (f"{apuestas_erroneas=}")
+        apuesta.sort()
+        
+        # OBTENER ESTRELLAS, si existen en el juego
+        if s.NUMS_ESTRELLAS > 0:
+            for i in range(2):
+                estrella[i] = self.bombo.getEstrellaAlAzar(s)
+
+        # UNION APUESTA + EXTRELLAS
+        return apuesta + estrella 
+
+
+    def nums_n_grupos(self, s, numant=0, ndecenas=0, ngrupos=3, repetir=False, agrupar=3):
+        numeros = agrupar * s.NUMS_COMBINACION
+        return self.bombo.getNumeroNGrupos(s, ngrupos, numeros)
 
 
     def nums_al_azar(self, s, numant=None, ndecenas=None, ngrupos=None, repetir=False):
@@ -198,37 +285,6 @@ class Apuesta:
         else:
             return self.bombo.getNumeroBajo(s)
 
-
-    def obtenerApuesta(self, s, fSelect, ndecenas=0, ngrupos=8, repetir=False):
-        apuesta  = [0] * s.NUMS_COMBINACION 
-        estrella = [0] * 2
-        apuestas_erroneas = 0
-
-        while True:
-            # CREAR APUESTA
-            apuesta = [0] * s.NUMS_COMBINACION
-            numant = 0
-            for i in range(s.NUMS_COMBINACION):
-                apuesta[i] = fSelect(s, numant, ndecenas, ngrupos, repetir)
-                numant = apuesta[i] 
-            
-            # OBTENER DECENAS APUESTA
-            fDecenas = getDecenas(apuesta)
-
-            # FILTRAR APUESTA: numeros y decenas
-            if len(apuesta) == len(set(apuesta)):
-                if fDecenas in s.LIST_DECENAS: break
-            
-            apuestas_erroneas += 1
-
-        print (f"{apuestas_erroneas=}")
-        apuesta.sort()
-        
-        # OBTENER ESTRELLAS, si existen en el juego
-        if s.NUMS_ESTRELLAS > 0:
-            for i in range(2):
-                estrella[i] = self.bombo.getEstrellaAlAzar(s)
-        return apuesta + estrella 
                     
 ###################################################################################
 #  Clase JuegoLoteria                                                    
@@ -253,7 +309,8 @@ class Loteria:
         ap = Apuesta(self.s)
         for i in range(nApuestas):
             # nums_al_azar, nums_term_dif, nums_figuras, nums_alt_AltosBajos, nums_alt_PerfiCentrales 
-            apuestas[i] = ap.obtenerApuesta(self.s, ap.nums_figuras, ndecenas=0, ngrupos=8, repetir=False)
+            ng = int(nApuestas / 3)
+            apuestas[i] = ap.obtenerApuesta(self.s, ap.nums_n_grupos, ndecenas=0, ngrupos=ng, repetir=False)
         return apuestas
          
     def _publicarExcel(self, apuestas):
@@ -269,15 +326,9 @@ def JugarMacroExcel(file, sheet, loto, nApuestas, updXLS=True):
     juego = Loteria(file, sheet, loto)
     juego.jugarLoteria(nApuestas, updXLS=updXLS)
 
-def CheckNAnterioresMacroExcel(file, sheet):
-    juego = Loteria(file, sheet)
-    juego.checknanteriores(updxls="yes", nanteriores=7)
-
 ###################################################################################
 #  Test                                                                  
 ###################################################################################
 if __name__ == "__main__":
-    JugarMacroExcel("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", 8, True)
-    # CheckNAnterioresMacroExcel    ("Loterias.xlsm", "PRIMITIVA")
+    JugarMacroExcel("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", 9, False)
     
-

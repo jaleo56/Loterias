@@ -23,6 +23,15 @@ class Escrutinio:
             print (f"{self.lAciertos=}")
 
 
+    def checkAciertosGrupos(self, updXLS=False):
+        xls             = self._getInfoFromExcel("ALL")      # Obtiene, apuestas, eApuestas, ganadoras,
+        self.lAciertos  = self._checkAciertosGrupos(self.ganadoras, self.apuestas)
+        if updXLS:
+            xls.publicarRango(self.s.CEL_ACIERTOS, self.lAciertos)
+        else:
+            print (f"{self.lAciertos=}")
+
+
     def checkAllGanadoras(self, updXLS=False, resumir=False):
         xls = self._getInfoFromExcel("ALL")     # Obtiene, apuestas, eApuestas, ganadoras,
         self.lAciertos, self.lResFila, self.lResumen = self._checkGanadoras()
@@ -61,6 +70,37 @@ class Escrutinio:
             naciertos = len(sGanadora.intersection(snApuestas))
             lFila = [naciertos, nNumeros]
             lAciertos.append(lFila)
+        return lAciertos
+
+
+    def _checkAciertosGrupos(self, ganadoras, apuestas):
+        lAciertos   = []
+        lGrupos     = []
+        flat_list   = []
+
+        alist = apuestas.values.tolist()
+        for i, a in enumerate(alist):
+            flat_list.extend(a)
+            if i>0 and i%3 == 2:
+                lGrupos.append(flat_list)
+                flat_list = []
+
+        for x, ganadora in ganadoras.iterrows():
+            if x == 0: continue
+            sGanadora  = set(ganadora)
+            acGanadora = []
+            for ag in lGrupos:
+                sApuestas = set(ag)
+                nNumeros = len(sApuestas)
+                naciertos = len(sGanadora.intersection(sApuestas))
+                acGanadora.append(naciertos)
+            acGanadora.sort(reverse=True)
+            fAciertos = ""
+            for n in acGanadora:
+                fAciertos += str(n) if fAciertos == "" else str("|") + str(n)
+            lFila = [fAciertos, nNumeros]
+            lAciertos.append(lFila)
+
         return lAciertos
 
 
@@ -137,13 +177,13 @@ class Escrutinio:
             ganadorasRange  = xls.getDataFrame(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_GANADORAS)  
             self.ganadoras  = pd.DataFrame(ganadorasRange, columns=self.s.COLS_GANADORAS)
             self.eGanadoras = pd.DataFrame(ganadorasRange, columns=self.s.COLS_EGANADORAS )
-            print(f"{self.ganadoras=}")
+            # print(f"{self.ganadoras=}")
         
         if tipo in ("APUESTAS", "ALL"):
             apuestasRange   = xls.getDataFrame(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_APUESTAS)
             self.apuestas   = pd.DataFrame(apuestasRange, columns=self.s.COLS_APUESTAS)
             self.eApuestas  = pd.DataFrame(apuestasRange, columns=self.s.COLS_EAPUESTAS)
-            print(f"{self.apuestas=}")
+            # print(f"{self.apuestas=}")
 
         if tipo in ("ALL"):
             self.resultadosRange = xls.getRange(self.s.FILE_NAME, self.s.SHEET, self.s.RNG_RESUMENES)
@@ -176,13 +216,17 @@ class Escrutinio:
 ########################################################################################
 # MACROS EXCEL
 #---------------------------------------------------------------------------------------
-def AciertosMacroExcel(file, sheet, loto):
+def AciertosMacroExcel(file, sheet, loto, updXLS=True):
     std = Escrutinio(file, sheet, loto)
     std.checkAciertos(updXLS=True)
 
-def CheckGanadorasMacroExcel(file, sheet, loto):
+def AciertosGruposMacroExcel(file, sheet, loto, updXLS=True):
     std = Escrutinio(file, sheet, loto)
-    std.checkAllGanadoras(updXLS=True, resumir=True)
+    std.checkAciertosGrupos(updXLS=updXLS)
+
+def CheckGanadorasMacroExcel(file, sheet, loto, updXLS=True):
+    std = Escrutinio(file, sheet, loto)
+    std.checkAllGanadoras(updXLS=updXLS, resumir=True)
 
 def CheckNAnterioresMacroExcel (file, sheet, loto, updXLS=True):
     esc = Escrutinio(file, sheet, loto)
@@ -192,6 +236,8 @@ def CheckNAnterioresMacroExcel (file, sheet, loto, updXLS=True):
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    # AciertosMacroExcel            ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES")
-    CheckGanadorasMacroExcel      ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES")
-    # CheckNAnterioresMacroExcel    ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES")
+    # AciertosGruposMacroExcel        ("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", True)
+    # AciertosMacroExcel            ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES", True)
+    CheckGanadorasMacroExcel      ("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", True)
+    # CheckNAnterioresMacroExcel    ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES", True)
+    
