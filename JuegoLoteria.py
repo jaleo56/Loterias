@@ -139,10 +139,12 @@ class BomboNumeros:
         self.cntNumeros += 1
         
         # --- Seleccionar numero del grupo seleccionado (sin repeticion)
+        print(f'{nGrupo=}')
         if len(self.nsGruposApuesta[nGrupo]) == 0:
             self.nsGruposApuesta[nGrupo] = copy.deepcopy(self.nsGruposJuego[nGrupo])
  
-        n = self.nsGruposApuesta[nGrupo].pop(randrange(len(self.nsGruposApuesta[nGrupo])))
+        # n = self.nsGruposApuesta[nGrupo].pop(randrange(len(self.nsGruposApuesta[nGrupo])))
+        n = self.nsGruposApuesta[nGrupo].pop(0)
 
         return n 
     
@@ -191,7 +193,7 @@ class BomboNumeros:
                     iterGrupos += 1
 
                 if len(lGrupo) == len(set(lGrupo)):
-                    lGrupo.sort()
+                    # lGrupo.sort()
                     nsGruposJuego.append(lGrupo)
                     break
                 grupos_erroneos += 1
