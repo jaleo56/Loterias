@@ -17,10 +17,12 @@ class Estadisticas:
 
     def checkEstadisticas(self, tipo, updXLS=False):
         xls = self._getInfoFromExcel(tipo=tipo)
+       
         if tipo == "APUESTAS":
             self.lEstadisticas = self._checkEstadisticas(self.apuestas)
         else:
             self.lEstadisticas = self._checkEstadisticas(self.ganadoras)
+
         if updXLS:
             xls.publicarRango(self.s.COL_FIGURAS, self.lEstadisticas)
         else:
@@ -34,7 +36,6 @@ class Estadisticas:
     def _checkEstadisticas(self, dfCombis):
         lEstadisticas = []
         lRes          = []  
-        print (f"{dfCombis=}")
         self._inicioArraysNumeros()
         
         for i, combi in dfCombis.iterrows():
@@ -78,6 +79,7 @@ class Estadisticas:
 
         # Obtener decenas
         fDecenas = getDecenas(sCombinacion)     
+        print(f'{sCombinacion=}. {fDecenas=}')
         
         # Obtener total intervalos
         for n in range(10):
@@ -158,7 +160,7 @@ class Estadisticas:
 ########################################################################################
 # MACROS EXCEL
 #---------------------------------------------------------------------------------------
-def CheckEstadisticasMacroExcel(file, sheet, loto, tipo="APUESTAS"):
+def CheckEstadisticasMacroExcel(file, sheet, loto, tipo="GANADORAS"):
     std = Estadisticas(file, sheet, loto)
     std.checkEstadisticas(tipo=tipo, updXLS=True)
 
@@ -166,5 +168,5 @@ def CheckEstadisticasMacroExcel(file, sheet, loto, tipo="APUESTAS"):
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    CheckEstadisticasMacroExcel("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", "APUESTAS")
+    CheckEstadisticasMacroExcel("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", "GANADORAS")
  

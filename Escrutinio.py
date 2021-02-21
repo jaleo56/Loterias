@@ -8,6 +8,10 @@ class Escrutinio:
     resultadosRange = []
 
     def __init__(self, file, sheet, loto):
+        print(f'{loto=}')
+        print(f'{sheet=}')
+        print(f'{file=}')
+
         self.s = Settings(file, sheet, loto)
 
     ########################################################################################
@@ -34,7 +38,9 @@ class Escrutinio:
 
     def checkAllGanadoras(self, updXLS=False, resumir=False):
         xls = self._getInfoFromExcel("ALL")     # Obtiene, apuestas, eApuestas, ganadoras,
+        print ("genera xls")
         self.lAciertos, self.lResFila, self.lResumen = self._checkGanadoras()
+        print ("genera resultados")
         if updXLS:
             if resumir:
                 resumen = [self.lResumen]
@@ -42,8 +48,8 @@ class Escrutinio:
                     resumen.append(l)
                 xls.publicarRango(self.s.CEL_RESUMEN, resumen)
             else:
-                xls.publicarRango(self.s.CEL_RESUMEN, self.lResFila)
-                # xls.publicarRango(self.s.CEL_RESULTADOS, self.lAciertos)
+                # xls.publicarRango(self.s.CEL_RESUMEN, self.lResFila)
+                xls.publicarRango(self.s.CEL_RESULTADOS, self.lAciertos)
         else:
             print (f"{self.lAciertos=}")
 
@@ -225,8 +231,9 @@ def AciertosGruposMacroExcel(file, sheet, loto, updXLS=True):
     std.checkAciertosGrupos(updXLS=updXLS)
 
 def CheckGanadorasMacroExcel(file, sheet, loto, updXLS=True):
+    loto = "PRIMITIVA"
     std = Escrutinio(file, sheet, loto)
-    std.checkAllGanadoras(updXLS=updXLS, resumir=True)
+    std.checkAllGanadoras(updXLS=updXLS, resumir=False)
 
 def CheckNAnterioresMacroExcel (file, sheet, loto, updXLS=True):
     esc = Escrutinio(file, sheet, loto)
@@ -238,6 +245,6 @@ def CheckNAnterioresMacroExcel (file, sheet, loto, updXLS=True):
 if __name__ == "__main__":
     # AciertosGruposMacroExcel        ("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", True)
     # AciertosMacroExcel            ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES", True)
-    CheckGanadorasMacroExcel      ("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", True)
+    CheckGanadorasMacroExcel      ("Loterias.xlsm", "PRIMITIVA2", "PRIMITIVA", True)
     # CheckNAnterioresMacroExcel    ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES", True)
     

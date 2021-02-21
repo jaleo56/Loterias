@@ -10,7 +10,7 @@ class Settings:
         "EUROMILLONES_EUROMILLONES" : "K3" 
     }
 
-    # ----- GRUPOS: BIP, BIC, BPP, BPC, AIP, AIC, APP, APC
+    # ----- GRUPOS: IBP, IBC, PBP, PBC, IAP, IAC, PAP, PAC
     GRUPOS_NUMS = [ 
         [1, 3, 5, 7, 9, 11, 21], 
         [13, 15, 17, 19, 23, 25],
@@ -79,7 +79,7 @@ class Settings:
             self.LIST_DECENAS        = ["2|2|1|1", "3|1|1|1", "3|2|1"]
 
         else:
-            raise ValueError("El tipo de loteria (nombre hoja) no está permitido.")
+            raise ValueError(f"El tipo de loteria {self.LOTO} no está permitido.")
 
         self.NUMEROS_LOTO = [x for x in range(1, self.NUM_MAYOR  + 1)]
 

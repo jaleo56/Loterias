@@ -8,7 +8,6 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-.db
 
 # Icon must end with two \r
 Icon
@@ -44,11 +43,12 @@ Backup of *.doc*
 
 # Excel temporary
 ~$*.xls*
-.xls*
-
 
 # Excel Backup File
 *.xlk
+*.xlsx
+*.xlxm
+xlwings_log.txt
 
 # PowerPoint temporary
 ~$*.ppt*
@@ -61,11 +61,6 @@ Backup of *.doc*
 __pycache__/
 *.py[cod]
 *$py.class
-z_obsoleto/
-.gitignore
-.project
-.pydevproject
-xlwings_log.txt
 
 # C extensions
 *.so
@@ -176,7 +171,6 @@ ENV/
 env.bak/
 venv.bak/
 pythonenv*
-test.py
 
 # Spyder project settings
 .spyderproject
@@ -201,9 +195,6 @@ dmypy.json
 
 # profiling data
 .prof
-
-### Idea
-.idea/*
 
 ### VisualStudioCode ###
 .vscode/*
