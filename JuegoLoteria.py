@@ -127,7 +127,7 @@ class BomboNumeros:
         self.figurasApuesta[nGrupo].remove(n)
         return n
         
-   
+
     def getNumeroNGrupos(self, s, ngrupos, numeros):
         # ---Crear n grupos de n numeros (primera vez) 
         if len(self.nsGruposJuego) == 0:
@@ -299,22 +299,48 @@ class Loteria:
 
     # --- API 
     def jugarLoteria(self, nApuestas, updXLS=False):
-        apuestas = self._getApuestas(int(nApuestas))
+        # apuestas = self._getApuestas(int(nApuestas))
+        apuestas = self._getApuestasEquilibradas()
         if updXLS:
             self._publicarExcel(apuestas)
         else:
-            print (f"{apuestas=}")
+            # print (f"{apuestas=}")
+            ...
 
     # --- UTILS MODULS
     def _getApuestas(self, nApuestas):
         apuestas  = [[0] * self.s.NUMS_COMBINACION ] * nApuestas
         ap = Apuesta(self.s)
         for i in range(nApuestas):
-            # nums_al_azar, nums_term_dif, nums_figuras, nums_alt_AltosBajos, nums_alt_PerfiCentrales 
+            # nums_al_azar, nums_term_dif, nums_figuras, 
+            # nums_alt_AltosBajos, nums_alt_PerfiCentrales 
             ng = int(nApuestas / 3)
             apuestas[i] = ap.obtenerApuesta(self.s, ap.nums_n_grupos, ndecenas=0, ngrupos=ng, repetir=False)
         return apuestas
-         
+
+    def _getApuestasEquilibradas(self):
+        apuestas  = [[]]
+
+        numeros = [ [3, 6, 7, 0, 1, 4],
+                    [2, 6, 7, 0, 1, 5],
+                    [2, 3, 7, 0, 1, 4],
+                    [2, 3, 6, 1, 4, 5] ]
+        x = 0
+        for i in range(4):
+            for a in self.s.GRUPOS_NUMS[numeros[i][0]]:
+                for b in self.s.GRUPOS_NUMS[numeros[i][1]]:
+                    for c in self.s.GRUPOS_NUMS[numeros[i][2]]:
+                        for d in self.s.GRUPOS_NUMS[numeros[i][3]]:
+                            for e in self.s.GRUPOS_NUMS[numeros[i][4]]:
+                                for f in self.s.GRUPOS_NUMS[numeros[i][5]]:
+                                    l = [a, b, c, d, e, f]
+                                    x += 1
+                                    print(f'{x=}')
+                                    apuestas.append(l)
+                                    if x > 100: break
+        return apuestas
+
+
     def _publicarExcel(self, apuestas):
         xls   = HojaExcel()
         fecha = getFecha()
@@ -324,7 +350,7 @@ class Loteria:
 ####################################################################################
 #  Macros excel                                                          
 ####################################################################################
-def JugarMacroExcel(file, sheet, loto, nApuestas, updXLS=True):
+def JugarMacroExcel(file, sheet, loto, nApuestas, updXLS=False):
     juego = Loteria(file, sheet, loto)
     juego.jugarLoteria(nApuestas, updXLS=updXLS)
 
@@ -333,4 +359,3 @@ def JugarMacroExcel(file, sheet, loto, nApuestas, updXLS=True):
 ###################################################################################
 if __name__ == "__main__":
     JugarMacroExcel("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", 9, False)
-    
