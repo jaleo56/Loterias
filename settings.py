@@ -53,7 +53,7 @@ class Settings:
             self.DECENAS             = [0, 1, 2, 3, 4, 5]
             self.LIST_DECENAS        = ["2|1|1|1", "2|2|1", "3|1|1"]
             
-        elif self.LOTO == "PRIMITIVA":
+        elif self.LOTO in ("BONOLOTO", "PRIMITIVA"):
             self.CEL_RESULTADOS      = "AP3"
             self.CEL_RESUMEN         = "AP3"
             self.RNG_GANADORAS       = ["B2", "H"]
