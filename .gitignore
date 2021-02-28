@@ -43,12 +43,12 @@ Backup of *.doc*
 
 # Excel temporary
 ~$*.xls*
+Loterias.xlsm
+Text.xlsx
+gitignore
 
 # Excel Backup File
 *.xlk
-*.xlsx
-*.xlxm
-xlwings_log.txt
 
 # PowerPoint temporary
 ~$*.ppt*
