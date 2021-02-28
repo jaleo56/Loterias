@@ -47,6 +47,7 @@ Loterias.xlsm
 Text.xlsx
 .gitignore
 
+
 # Excel Backup File
 *.xlk
 
