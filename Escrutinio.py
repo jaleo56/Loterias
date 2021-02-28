@@ -1,6 +1,8 @@
 import pandas as pd
+from collections import Counter
+from itertools import product
 from HojaExcel import HojaExcel
-from settings import Settings
+from settings  import Settings
 
 class Escrutinio:
     lAciertos = []
@@ -8,10 +10,6 @@ class Escrutinio:
     resultadosRange = []
 
     def __init__(self, file, sheet, loto):
-        print(f'{loto=}')
-        print(f'{sheet=}')
-        print(f'{file=}')
-
         self.s = Settings(file, sheet, loto)
 
     ########################################################################################
@@ -61,8 +59,53 @@ class Escrutinio:
         if updXLS:
            xls.publicarRango(self.s.CEL_ACIERTOS, self.lAciertos)
         else:
-            print (f"{self.lAciertos=}") 
-    
+            print (f"{self.lAciertos=}")
+
+
+    def checkFrecuencias(self, nAnteriores):
+        tot_apuestas, tot_premios, n = 0, 0, 0
+        tot_aciertos = [0] * 8
+        numsFreq = self._getAllNumsFreq()
+        xls = self._getInfoFromExcel("GANADORAS")      
+        for i in range(len(self.ganadoras)-nAnteriores):
+            if (entra:=input('Quieres continuar ?')) in ("n", "no"): break 
+            sGanadora    = set(self.ganadoras.iloc[i])
+            sEstrellas   = set(self.eGanadoras.iloc[i])
+            lnApuestas   = self._getApuestas(i, nAnteriores)
+            aciertos     = self._checkAciertos(sGanadora, sEstrellas, lnApuestas)
+            premio       = aciertos[7] * 500000 + aciertos[6] * 30000 + aciertos[5] * 2500 + aciertos[4] * 60 + aciertos[3] * 60 + aciertos[2] * 8
+            tot_apuestas+= len(lnApuestas)
+            tot_premios += premio
+            for m in range(len(tot_aciertos)): 
+                tot_aciertos[m] += aciertos[m]
+            print(f'{sGanadora=}, {sEstrellas=}')
+            print(f'Jornada: ', n:=n+1, f': {aciertos=}. {premio=}')
+            print(f'TOTALES: {tot_aciertos=}. {tot_apuestas=}. {tot_premios=}')
+
+    def checkEstadistica(self):
+        cnt_apuestas, premios, n = 0, 0, 0
+        aciertos_acum = [0] * 8
+        xls = self._getInfoFromExcel("GANADORAS")      
+        for i in range(len(self.ganadoras)-nAnteriores):
+            if (entra:=input('Quieres continuar ?')) in ("n", "no"): break 
+            sg = set(self.ganadoras.iloc[i])
+            se = set(self.eGanadoras.iloc[i])
+            lnApuestas = self._getApuestas(i, nAnteriores)
+            aciertos   = self._checkApuestas(sg, se, lnApuestas)
+            cnt_apuestas += len(lnApuestas)
+            premios += aciertos[7] * 500000 + aciertos[6] * 30000 + aciertos[5] * 2500 + aciertos[4] * 60 + aciertos[3] * 60 + aciertos[2] * 8
+            n += 1
+            aciertos_acum += aciertos
+            print(f'{list(self.ganadoras.iloc[i])=}, {se=}')
+            print(f"{aciertos=}")
+            print(f"{aciertos_acum=}")
+            print(f'Número jornadas: {n}. {cnt_apuestas=}. {premios=}')
+
+
+    def _getAllNumsFreq(self):
+        nums = [x+1 for x in range(self.s.NUM_MAYOR)]
+        return Counter(nums * 1000)
+        # print(f'{numsFreq=}')
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 1
     #---------------------------------------------------------------------------------------
@@ -126,7 +169,7 @@ class Escrutinio:
                 snApuesta = set(self.apuestas.iloc[y])
                 seApuesta = set(self.eApuestas.iloc[y])
                 nums = len(snGanadora.intersection(snApuesta))
-                if self.s.LOTO == "PRIMITIVA":
+                if self.s.LOTO in ("BONOLOTO", "PRIMITIVA"):
                     # Check numero complementario
                     ests = len(seGanadora.intersection(snApuesta))
                 else:
@@ -146,6 +189,19 @@ class Escrutinio:
         total = pd.DataFrame(resumen).sum()
         lTotal = total.tolist()
         return lAciertos, lResFila, lTotal
+
+    def _checkAciertos(self, snGanadora, seGanadora, lApuestas):
+        cntRow = [0] * 61
+        neRow  = []
+        for apuesta in lApuestas:
+            snApuesta = set(apuesta)
+            nums = len(snGanadora.intersection(snApuesta))
+            ests = len(seGanadora.intersection(snApuesta))
+            neRow.append(nums)
+            neRow.append(ests)
+            cntRow[(nums*10)+ests] += 1
+        res = self._listaAciertos(cntRow)
+        return res
 
 
     def _checkNAnteriores(self, nAnteriores=7, fuera=True):
@@ -168,6 +224,53 @@ class Escrutinio:
             l2 = [nAciertos, len(sApuestas)]
             lAciertos.append(l2)
         return lAciertos 
+
+    def _getApuestas(self, i, nAnteriores):
+
+        # 1.OBTENER LAS N-GANADORAS ANTERIORES A LA JUGADA, FILTRARLOS y ALINEARLOS EN 6 GRUPOS
+        nApuestas = [[] for _ in range(6)]
+        for j in range(1, nAnteriores+1):
+            l = self.ganadoras.iloc[i+j].tolist()
+            for x, n in enumerate(l):
+                nested_list = nApuestas[x]
+                nested_list.append(n)
+        print(f"{nApuestas=}")
+
+
+        # 2.OBTENER FRECUENCIAS DE LOS NUMEROS POR COLUMNA
+        _count = [[] for _ in range(6)]
+        for x in range(6):
+            _count[x] = Counter(nApuestas[x])
+        print(f'{_count=}')
+            
+        # 3.SELECCIONAR LAS N-FRECUENCIAS MAS ALTAS DE CADA COLUMNA
+        elem  = [[] for _ in range(6)] 
+        elems = [] 
+        for x in range(6):
+            elem = _count[x].most_common(2)
+            elems.append(elem)
+        print(f'{elems=}')
+        
+        # 4.EXTRAER EL NUMERO DE LA FRECUENCIA MAS ALTA
+        elements = []
+        for l in elems:
+            lt = [t[0] for t in l]
+            elements.append(lt)
+        print(f'{elements=}')
+
+        # 5.OBTENER PRODUCTO CARTESIANO TODAS LAS APUESTAS, FILTRAR APUESTAS ERRONEAS
+        lApuestas = []
+        apuestas_err = 0
+        for apuesta in product(*elements):
+            if len(apuesta) == len(set(apuesta)):
+                lApuestas.append(apuesta)
+                print(f'{apuesta=}')
+            else:
+                print(f'ERROR: {apuesta=}')
+                apuestas_err += 1
+        print(f'{apuestas_err=}')
+            
+        return lApuestas
 
     ########################################################################################
     # MODULOS INTERNOS. NIVEL 2
@@ -204,10 +307,13 @@ class Escrutinio:
   
 
     def _listaAciertos(self, cntRow):
-        if self.s.LOTO == "PRIMITIVA":
+        if self.s.LOTO in ("BONOLOTO", "PRIMITIVA"):
             return ([
-                (cntRow[30] + cntRow[31]), cntRow[40], cntRow[41],
-                cntRow[50], cntRow[51], cntRow[60]
+                (
+                cntRow[10] + cntRow[11]), 
+                cntRow[20] + cntRow[21],
+                cntRow[30] + cntRow[31], 
+                cntRow[40], cntRow[41], cntRow[50], cntRow[51], cntRow[60]
             ])
         else:
             return ([
@@ -239,12 +345,22 @@ def CheckNAnterioresMacroExcel (file, sheet, loto, updXLS=True):
     esc = Escrutinio(file, sheet, loto)
     esc.checkNAnteriores(updXLS, nAnteriores=10, fuera=False)
 
+def CheckFrecuenciasMacroExcel (file, sheet, loto, updXLS=False):
+    esc = Escrutinio(file, sheet, loto)
+    esc.checkFrecuencias(nAnteriores=100)
+
+def CheckEstadisticaMacroExcel (file, sheet, loto):
+    esc = Escrutinio(file, sheet, loto)
+    esc.checkEstadistica()
+
 ########################################################################################
 # TEST LOCAL
 #---------------------------------------------------------------------------------------
 if __name__ == "__main__":
     # AciertosGruposMacroExcel        ("Loterias.xlsm", "PRIMITIVA", "PRIMITIVA", True)
     # AciertosMacroExcel            ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES", True)
-    CheckGanadorasMacroExcel      ("Loterias.xlsm", "PRIMITIVA2", "PRIMITIVA", True)
+    # CheckGanadorasMacroExcel      ("Loterias.xlsm", "PRIMITIVA2", "PRIMITIVA", True)
     # CheckNAnterioresMacroExcel    ("Loterias.xlsm", "EUROMILLONES", "EUROMILLONES", True)
+    CheckFrecuenciasMacroExcel     ("Loterias.xlsm", "BONOLOTO", "BONOLOTO")
+    # CheckEstadisticaMacroExcel     ("Loterias.xlsm", "BONOLOTO", "BONOLOTO")
     

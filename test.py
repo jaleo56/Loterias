@@ -1,9 +1,49 @@
+def potencia(c):
+    """Calcula y devuelve el conjunto potencia del 
+       conjunto c.
+    """
+    if len(c) == 0:
+        return [[]]
 
-import pandas as pd
+    print(f'Antes: {c=}')    
+    r = potencia(c[:-1])
+    print(f'Despues: {r=}')
+    return r + [s + [c[-1]] for s in r]
 
-students_grades = pd.read_excel('./Libro2.xlsx')
-students_grades.head()
-print(f'{students_grades=}')
+# potencia(['1', '2', '3'])
+
+def combi():
+    n, fin = 0, 49+1
+    for a in range(1, fin):
+        for b in range(a+1, fin):
+                l = [a, b]
+                print (n:=n+1, l)
+
+combi()
+
+    #return [s for s in potencia(c) if len(s) == n]
+    # combinaciones(['0', '1', '2', '3', '4', '5', '6', '7'], 6))
+
+
+
+def iteracion():
+    i = 0
+
+    while True:
+        i += 1
+        entrada = input('Quieres continuar ?:')
+        if entrada in ("no", "n"):
+            break
+        else:
+            print(f"otra iteracion {i}")
+
+# iteracion()
+
+# import pandas as pd
+
+# students_grades = pd.read_excel('./Libro2.xlsx')
+# students_grades.head()
+# print(f'{students_grades=}')
 
 # if __name__ == "__main__":
 #     combi()
