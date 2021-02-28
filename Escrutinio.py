@@ -82,25 +82,6 @@ class Escrutinio:
             print(f'Jornada: ', n:=n+1, f': {aciertos=}. {premio=}')
             print(f'TOTALES: {tot_aciertos=}. {tot_apuestas=}. {tot_premios=}')
 
-    def checkEstadistica(self):
-        cnt_apuestas, premios, n = 0, 0, 0
-        aciertos_acum = [0] * 8
-        xls = self._getInfoFromExcel("GANADORAS")      
-        for i in range(len(self.ganadoras)-nAnteriores):
-            if (entra:=input('Quieres continuar ?')) in ("n", "no"): break 
-            sg = set(self.ganadoras.iloc[i])
-            se = set(self.eGanadoras.iloc[i])
-            lnApuestas = self._getApuestas(i, nAnteriores)
-            aciertos   = self._checkApuestas(sg, se, lnApuestas)
-            cnt_apuestas += len(lnApuestas)
-            premios += aciertos[7] * 500000 + aciertos[6] * 30000 + aciertos[5] * 2500 + aciertos[4] * 60 + aciertos[3] * 60 + aciertos[2] * 8
-            n += 1
-            aciertos_acum += aciertos
-            print(f'{list(self.ganadoras.iloc[i])=}, {se=}')
-            print(f"{aciertos=}")
-            print(f"{aciertos_acum=}")
-            print(f'Número jornadas: {n}. {cnt_apuestas=}. {premios=}')
-
 
     def _getAllNumsFreq(self):
         nums = [x+1 for x in range(self.s.NUM_MAYOR)]
