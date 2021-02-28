@@ -45,7 +45,7 @@ Backup of *.doc*
 ~$*.xls*
 Loterias.xlsm
 Text.xlsx
-gitignore
+.gitignore
 
 # Excel Backup File
 *.xlk
